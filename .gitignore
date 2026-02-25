@@ -17,3 +17,6 @@ npm-debug.log*
 
 # Prisma generated client
 generated/
+
+# Claude Code tool data
+.claude/

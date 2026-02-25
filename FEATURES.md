@@ -71,11 +71,11 @@ Organized by phase and component in recommended build order.
 
 ### 7. Mobile App — Project Setup
 
-- [ ] Scaffold React Native project
-- [ ] Set up navigation (stack + tab navigator)
-- [ ] Configure HTTP client with base URL and default headers (Idempotency-Key injection)
-- [ ] Configure local storage for LocalExpenseDraft (SQLite or AsyncStorage)
-- [ ] Set up environment config (API base URL, feature flags)
+- [x] Scaffold React Native project
+- [x] Set up navigation (stack + tab navigator)
+- [x] Configure HTTP client with base URL and default headers (Idempotency-Key injection)
+- [x] Configure local storage for LocalExpenseDraft (SQLite or AsyncStorage)
+- [x] Set up environment config (API base URL, feature flags)
 
 ---
 
