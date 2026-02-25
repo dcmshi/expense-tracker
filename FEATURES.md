@@ -92,10 +92,10 @@ Organized by phase and component in recommended build order.
 
 ### 9. Mobile App — Manual Entry Screen
 
-- [ ] Form fields: amount, merchant, category, date, notes
-- [ ] Numeric keyboard for amount field
-- [ ] Input validation (amount and date required)
-- [ ] Submit → `POST /expenses` → return to expense list
+- [x] Form fields: amount, merchant, category, date, notes
+- [x] Numeric keyboard for amount field
+- [x] Input validation (amount and date required)
+- [x] Submit → `POST /expenses` → return to expense list
 
 ---
 
