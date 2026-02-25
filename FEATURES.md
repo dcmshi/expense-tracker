@@ -101,15 +101,15 @@ Organized by phase and component in recommended build order.
 
 ### 10. Mobile App — Receipt Capture Flow
 
-- [ ] Camera permission request and handling
-- [ ] Photo capture
-- [ ] On-device image preprocessing (rotate, crop, compress)
-- [ ] Generate UUID as Idempotency-Key for upload session
-- [ ] `POST /uploads` → receive presigned\_url + object\_key
-- [ ] Upload image directly to S3 via presigned URL
-- [ ] `POST /ingest/receipt` with object\_key + Idempotency-Key header
-- [ ] Save LocalExpenseDraft locally (`sync_status: uploaded`)
-- [ ] Navigate to Edit/Verify screen for the new expense
+- [x] Camera permission request and handling
+- [x] Photo capture
+- [x] On-device image preprocessing (rotate, crop, compress)
+- [x] Generate UUID as Idempotency-Key for upload session
+- [x] `POST /uploads` → receive presigned\_url + object\_key
+- [x] Upload image directly to S3 via presigned URL
+- [x] `POST /ingest/receipt` with object\_key + Idempotency-Key header
+- [x] Save LocalExpenseDraft locally (`sync_status: uploaded`)
+- [x] Navigate to Edit/Verify screen for the new expense
 
 ---
 
