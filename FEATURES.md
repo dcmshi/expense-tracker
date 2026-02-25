@@ -115,14 +115,14 @@ Organized by phase and component in recommended build order.
 
 ### 11. Mobile App — Edit/Verify Screen
 
-- [ ] Display editable fields: amount, merchant, category, date, notes
-- [ ] Receipt image preview (loaded from `receipt_url`)
-- [ ] Show processing status indicator: spinner while `processing`, form when `awaiting_user`
-- [ ] Poll `GET /expenses/{id}` while `processing_status` is `uploaded` or `processing`
-- [ ] On `awaiting_user`: populate fields from parsed data, enable editing
-- [ ] On `failed`: show error message, offer options to edit manually, retry, or delete
-- [ ] Confirm button → `PATCH /expenses/{id}` with `is_user_verified: true`
-- [ ] Delete button → `DELETE /expenses/{id}` → return to expense list
+- [x] Display editable fields: amount, merchant, category, date, notes
+- [x] Receipt image preview (loaded from `receipt_url`)
+- [x] Show processing status indicator: spinner while `processing`, form when `awaiting_user`
+- [x] Poll `GET /expenses/{id}` while `processing_status` is `uploaded` or `processing`
+- [x] On `awaiting_user`: populate fields from parsed data, enable editing
+- [x] On `failed`: show error message, offer options to edit manually, retry, or delete
+- [x] Confirm button → `PATCH /expenses/{id}` with `is_user_verified: true`
+- [x] Delete button → `DELETE /expenses/{id}` → return to expense list
 
 ---
 
