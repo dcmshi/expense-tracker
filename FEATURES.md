@@ -47,11 +47,11 @@ Organized by phase and component in recommended build order.
 
 ### 5. Backend — Expense CRUD
 
-- [ ] `POST /expenses` — manual entry: `source: manual`, `confidence: 1.0`, `processing_status: verified`, `is_user_verified: true`
-- [ ] `GET /expenses` — list all expenses ordered by `created_at DESC`
-- [ ] `GET /expenses/{id}` — single expense including `processing_status` for client polling
-- [ ] `PATCH /expenses/{id}` — partial update of editable fields; setting `is_user_verified: true` transitions `processing_status` to `verified`
-- [ ] `DELETE /expenses/{id}` — delete expense, cascades to processing_jobs
+- [x] `POST /expenses` — manual entry: `source: manual`, `confidence: 1.0`, `processing_status: verified`, `is_user_verified: true`
+- [x] `GET /expenses` — list all expenses ordered by `created_at DESC`
+- [x] `GET /expenses/{id}` — single expense including `processing_status` for client polling
+- [x] `PATCH /expenses/{id}` — partial update of editable fields; setting `is_user_verified: true` transitions `processing_status` to `verified`
+- [x] `DELETE /expenses/{id}` — delete expense, cascades to processing_jobs
 
 ---
 
