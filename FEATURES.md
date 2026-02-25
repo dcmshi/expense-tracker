@@ -81,12 +81,12 @@ Organized by phase and component in recommended build order.
 
 ### 8. Mobile App — Expense List Screen
 
-- [ ] Fetch and display expenses from `GET /expenses`
-- [ ] Show amount, merchant, date, category per row
-- [ ] Show processing status badge per row (processing / awaiting\_user / failed / verified)
-- [ ] Pull-to-refresh
-- [ ] Empty state
-- [ ] Tap row → navigate to Edit/Verify screen
+- [x] Fetch and display expenses from `GET /expenses`
+- [x] Show amount, merchant, date, category per row
+- [x] Show processing status badge per row (processing / awaiting\_user / failed / verified)
+- [x] Pull-to-refresh
+- [x] Empty state
+- [x] Tap row → navigate to Edit/Verify screen
 
 ---
 
