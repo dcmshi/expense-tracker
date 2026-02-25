@@ -1,0 +1,60 @@
+services:
+
+  # PostgreSQL — primary database
+  postgres:
+    image: postgres:16-alpine
+    container_name: expense_tracker_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: expense_user
+      POSTGRES_PASSWORD: expense_pass
+      POSTGRES_DB: expense_tracker
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U expense_user -d expense_tracker"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # MinIO — S3-compatible object storage for receipt images
+  minio:
+    image: minio/minio:latest
+    container_name: expense_tracker_minio
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: expense_access_key
+      MINIO_ROOT_PASSWORD: expense_secret_key
+    ports:
+      - "9000:9000"   # S3 API
+      - "9001:9001"   # MinIO web console
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # MinIO bucket initialiser — runs once to create the receipts bucket
+  minio_init:
+    image: minio/mc:latest
+    container_name: expense_tracker_minio_init
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+        mc alias set local http://minio:9000 expense_access_key expense_secret_key &&
+        mc mb --ignore-existing local/expense-tracker-receipts &&
+        mc anonymous set none local/expense-tracker-receipts &&
+        echo 'Bucket ready.'
+      "
+    restart: on-failure
+
+volumes:
+  postgres_data:
+  minio_data:

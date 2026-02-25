@@ -11,8 +11,8 @@ Organized by phase and component in recommended build order.
 
 - [x] Write `schema.sql` — expenses, uploads, processing_jobs tables with all constraints and indexes
 - [x] Set up database migrations tooling
-- [ ] Set up local development environment (Docker Compose: PostgreSQL + MinIO or localstack for S3)
-- [ ] Define `.env` structure: DATABASE_URL, S3 credentials, Google Vision API key, worker config
+- [x] Set up local development environment (Docker Compose: PostgreSQL + MinIO or localstack for S3)
+- [x] Define `.env` structure: DATABASE_URL, S3 credentials, Google Vision API key, worker config
 
 ---
 
