@@ -37,11 +37,11 @@ Organized by phase and component in recommended build order.
 
 ### 4. Backend — Receipt Ingestion Endpoint
 
-- [ ] `POST /ingest/receipt` — accept object_key + Idempotency-Key header
-- [ ] Create Expense draft record (`processing_status: uploaded`, `source: receipt`)
-- [ ] Create ProcessingJob record linked to expense
-- [ ] Idempotency: if Idempotency-Key already exists, return existing expense_id without creating duplicate job
-- [ ] Return: `{ expense_id, processing_status }`
+- [x] `POST /ingest/receipt` — accept object_key + Idempotency-Key header
+- [x] Create Expense draft record (`processing_status: uploaded`, `source: receipt`)
+- [x] Create ProcessingJob record linked to expense
+- [x] Idempotency: if Idempotency-Key already exists, return existing expense_id without creating duplicate job
+- [x] Return: `{ expense_id, processing_status }`
 
 ---
 

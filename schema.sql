@@ -31,11 +31,11 @@ $$ LANGUAGE plpgsql;
 CREATE TABLE expenses (
   id                UUID           PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id           UUID,          -- nullable, reserved for future multi-user support
-  amount            NUMERIC(12, 2) NOT NULL,
+  amount            NUMERIC(12, 2),                        -- null for receipt/voice drafts until parsed
   currency          VARCHAR(3)     NOT NULL DEFAULT 'CAD',  -- ISO 4217
   merchant          TEXT,
   category          TEXT,
-  date              DATE           NOT NULL,
+  date              DATE,                                   -- null for receipt/voice drafts until parsed
   notes             TEXT,
   source            VARCHAR(10)    NOT NULL,
   receipt_url       TEXT,
@@ -58,8 +58,9 @@ CREATE TABLE expenses (
   CONSTRAINT expenses_currency_length_check
     CHECK (char_length(currency) = 3),
 
+  -- amount must be positive when present (null is valid for unprocessed drafts)
   CONSTRAINT expenses_amount_positive_check
-    CHECK (amount > 0)
+    CHECK (amount IS NULL OR amount > 0)
 );
 
 CREATE TRIGGER expenses_set_updated_at

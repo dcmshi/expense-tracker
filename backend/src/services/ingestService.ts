@@ -1,13 +1,67 @@
 import prisma from '../lib/db'
 
-// ingestReceipt — idempotency-safe receipt ingestion
+export interface IngestReceiptResult {
+  expense_id: string
+  processing_status: string
+}
+
+// ingestReceipt — idempotency-safe receipt ingestion.
 //
-// Flow:
-//   1. Check if idempotency key already exists in processing_jobs
-//   2. If yes → return existing expense_id and processing_status
-//   3. If no → create Expense draft (status: uploaded) + ProcessingJob record
+// Creates an Expense draft and a ProcessingJob in a single transaction.
+// The worker picks up the job and transitions both records through the
+// processing lifecycle.
 //
-// Returns: { expense_id, processing_status }
-export async function ingestReceipt(objectKey: string, idempotencyKey: string) {
-  // TODO
+// Idempotency behaviour:
+//   - Key exists → return existing expense_id and current processing_status
+//   - Key not found → create Expense draft (status: uploaded) + ProcessingJob
+//
+// amount and date are null on the draft — the worker populates them after parsing.
+export async function ingestReceipt(
+  objectKey: string,
+  idempotencyKey: string,
+): Promise<IngestReceiptResult> {
+  const existingJob = await prisma.processingJob.findUnique({
+    where: { idempotency_key: idempotencyKey },
+    include: {
+      expense: { select: { processing_status: true } },
+    },
+  })
+
+  if (existingJob) {
+    return {
+      expense_id: existingJob.expense_id,
+      processing_status: existingJob.expense.processing_status,
+    }
+  }
+
+  // Create Expense draft and ProcessingJob atomically.
+  // If either insert fails the whole transaction rolls back,
+  // keeping the two records always consistent.
+  const result = await prisma.$transaction(async (tx) => {
+    const expense = await tx.expense.create({
+      data: {
+        source: 'receipt',
+        processing_status: 'uploaded',
+        receipt_url: objectKey,   // object key stored as durable receipt reference
+        raw_input: {},
+        is_user_verified: false,
+        // amount and date intentionally null — populated by worker after OCR parsing
+      },
+    })
+
+    const job = await tx.processingJob.create({
+      data: {
+        expense_id: expense.id,
+        status: 'uploaded',
+        idempotency_key: idempotencyKey,
+      },
+    })
+
+    return { expense, job }
+  })
+
+  return {
+    expense_id: result.expense.id,
+    processing_status: result.expense.processing_status,
+  }
 }

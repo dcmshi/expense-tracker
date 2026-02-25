@@ -32,11 +32,11 @@ datasource db {
 model Expense {
   id                String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   user_id           String?  @db.Uuid        // nullable — reserved for future multi-user support
-  amount            Decimal  @db.Decimal(12, 2)
+  amount            Decimal? @db.Decimal(12, 2) // null for receipt/voice drafts until parsed
   currency          String   @default("CAD") @db.VarChar(3)  // ISO 4217
   merchant          String?
   category          String?
-  date              DateTime @db.Date         // purchase date only — no time component needed
+  date              DateTime? @db.Date        // null for receipt/voice drafts until parsed
   notes             String?
   source            String   @db.VarChar(10) // CHECK: manual | voice | receipt (enforced in migration)
   receipt_url       String?
