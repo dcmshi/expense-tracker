@@ -18,12 +18,12 @@ Organized by phase and component in recommended build order.
 
 ### 2. Backend — Project Setup
 
-- [ ] Scaffold backend project and folder structure
-- [ ] Configure database connection pool
-- [ ] Configure S3-compatible client (presigned URL generation)
-- [ ] Configure Google Vision API client
-- [ ] Set up request validation middleware
-- [ ] Set up centralised error handling middleware
+- [x] Scaffold backend project and folder structure
+- [x] Configure database connection pool
+- [x] Configure S3-compatible client (presigned URL generation)
+- [x] Configure Google Vision API client
+- [x] Set up request validation middleware
+- [x] Set up centralised error handling middleware
 
 ---
 
