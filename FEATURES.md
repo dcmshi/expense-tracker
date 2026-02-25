@@ -29,9 +29,9 @@ Organized by phase and component in recommended build order.
 
 ### 3. Backend — Upload Endpoint
 
-- [ ] `POST /uploads` — generate presigned URL + object key, store Upload record
-- [ ] Idempotency: if Idempotency-Key already exists and URL not expired, return existing record
-- [ ] Return: `{ presigned_url, object_key, expires_at }`
+- [x] `POST /uploads` — generate presigned URL + object key, store Upload record
+- [x] Idempotency: if Idempotency-Key already exists and URL not expired, return existing record
+- [x] Return: `{ presigned_url, object_key, expires_at }`
 
 ---
 
