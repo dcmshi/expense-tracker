@@ -57,15 +57,15 @@ Organized by phase and component in recommended build order.
 
 ### 6. Backend — Processing Worker
 
-- [ ] Worker polling loop — query ProcessingJob WHERE status IN ('uploaded', 'processing') ORDER BY created_at
-- [ ] Transition job + expense status: `uploaded → processing` on pickup
-- [ ] Call Google Vision API for OCR text extraction from S3 object
-- [ ] Heuristic parser — extract amount, merchant, date, currency from OCR output
-- [ ] Store raw OCR text and parsed line items in `raw_input` JSONB on Expense
-- [ ] Transition job + expense status: `processing → parsed → awaiting_user` on success
-- [ ] On failure: increment `attempt_count`, store `last_error_message`, apply exponential backoff
-- [ ] Transition to `failed` after `max_attempts` reached (terminal)
-- [ ] Keep `processing_status` on Expense in sync with ProcessingJob status at each transition
+- [x] Worker polling loop — query ProcessingJob WHERE status IN ('uploaded', 'processing') ORDER BY created_at
+- [x] Transition job + expense status: `uploaded → processing` on pickup
+- [x] Call Google Vision API for OCR text extraction from S3 object
+- [x] Heuristic parser — extract amount, merchant, date, currency from OCR output
+- [x] Store raw OCR text and parsed line items in `raw_input` JSONB on Expense
+- [x] Transition job + expense status: `processing → parsed → awaiting_user` on success
+- [x] On failure: increment `attempt_count`, store `last_error_message`, apply exponential backoff
+- [x] Transition to `failed` after `max_attempts` reached (terminal)
+- [x] Keep `processing_status` on Expense in sync with ProcessingJob status at each transition
 
 ---
 
