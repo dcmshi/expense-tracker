@@ -10,7 +10,8 @@ export type ExpensesStackParamList = {
 export type AddStackParamList = {
   AddHub: undefined
   ManualEntry: undefined
-  ReceiptCapture: undefined
+  // resumeLocalId + resumeImageUri are set when recovering a pending draft
+  ReceiptCapture: { resumeLocalId?: string; resumeImageUri?: string }
 }
 
 // ---------- Root tab navigator ----------

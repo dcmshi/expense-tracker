@@ -49,3 +49,8 @@ export async function deleteDraft(localId: string): Promise<void> {
   const drafts = await readAll()
   await writeAll(drafts.filter((d) => d.local_id !== localId))
 }
+
+export async function deleteDraftByExpenseId(expenseId: string): Promise<void> {
+  const drafts = await readAll()
+  await writeAll(drafts.filter((d) => d.expense_id !== expenseId))
+}

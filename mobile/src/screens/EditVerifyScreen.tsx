@@ -15,6 +15,7 @@ import {
 import type { NativeStackScreenProps } from '@react-navigation/native-stack'
 import type { ExpensesStackParamList } from '../navigation/types'
 import { getExpense, updateExpense, deleteExpense } from '../api/expenses'
+import { deleteDraftByExpenseId } from '../storage/draftStorage'
 import type { Expense, ProcessingStatus } from '../types'
 
 type Props = NativeStackScreenProps<ExpensesStackParamList, 'EditVerify'>
@@ -139,6 +140,9 @@ export default function EditVerifyScreen({ route, navigation }: Props) {
       try {
         const fresh = await getExpense(expenseId)
         setExpense(fresh)
+        if (!IN_FLIGHT.has(fresh.processing_status)) {
+          void deleteDraftByExpenseId(expenseId)
+        }
       } catch {
         // Silently ignore poll failures — next tick will retry
       }
@@ -192,6 +196,7 @@ export default function EditVerifyScreen({ route, navigation }: Props) {
         is_user_verified: true,
       })
       setExpense(updated)
+      void deleteDraftByExpenseId(expenseId)
     } catch (err: unknown) {
       setSaveError(
         (err as { message?: string })?.message ?? 'Failed to save expense',
@@ -214,6 +219,7 @@ export default function EditVerifyScreen({ route, navigation }: Props) {
             setDeleting(true)
             try {
               await deleteExpense(expenseId)
+              void deleteDraftByExpenseId(expenseId)
               navigation.goBack()
             } catch (err: unknown) {
               setDeleting(false)

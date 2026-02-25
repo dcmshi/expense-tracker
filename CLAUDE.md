@@ -234,6 +234,31 @@ Phase 3
 
 ------------------------------------------------------------------------
 
+## Implementation Status
+
+### Phase 1 — Complete
+
+**Backend** (§1–§6)
+- Infrastructure: PostgreSQL + MinIO via Docker Compose, schema + migrations
+- Upload endpoint: POST /uploads with presigned URL generation and idempotency
+- Ingestion endpoint: POST /ingest/receipt with idempotent job creation
+- Expense CRUD: full REST API (POST, GET list, GET single, PATCH, DELETE)
+- Processing worker: Google Vision OCR, heuristic parser, state machine with retry/backoff
+
+**Mobile** (§7–§12)
+- Project scaffold: Expo managed workflow, React Navigation (tab + stack), axios client
+- Expense List screen: fetches from API, status badges, pull-to-refresh, empty state
+- Manual Entry screen: form with validation, submits to POST /expenses
+- Receipt Capture screen: camera permission, capture, on-device preprocessing, presigned upload, ingest
+- Edit/Verify screen: receipt preview, in-flight polling, editable fields, confirm + delete
+- LocalExpenseDraft management: draft created on capture, sync\_status tracked through pipeline, draft cleared on server sync, pending drafts surfaced in AddHub for resume on app restart
+
+### Phase 2 — Not started
+
+### Phase 3 — Not started
+
+------------------------------------------------------------------------
+
 ## Portfolio Value
 
 Demonstrates: - Mobile ingestion architecture - Async processing

@@ -57,8 +57,14 @@ async function uploadToPresignedUrl(presignedUrl: string, imageUri: string): Pro
 
 // ── Screen ────────────────────────────────────────────────────────────────────
 
-export default function ReceiptCaptureScreen({ navigation }: Props) {
-  const [phase, setPhase] = useState<Phase>({ name: 'idle' })
+export default function ReceiptCaptureScreen({ navigation, route }: Props) {
+  const { resumeLocalId, resumeImageUri } = route.params ?? {}
+
+  const [phase, setPhase] = useState<Phase>(
+    resumeImageUri
+      ? { name: 'preview', uri: resumeImageUri }
+      : { name: 'idle' },
+  )
 
   // ── Camera launch ───────────────────────────────────────────────────────────
 
@@ -90,10 +96,10 @@ export default function ReceiptCaptureScreen({ navigation }: Props) {
 
   async function handleUsePhoto(rawUri: string) {
     const now = new Date().toISOString()
-    const localId = Crypto.randomUUID()
+    const localId = resumeLocalId ?? Crypto.randomUUID()
     const idempotencyKey = Crypto.randomUUID()
 
-    // Create draft immediately so a crash mid-upload leaves a recoverable record
+    // Upsert the draft — creates fresh or resets an existing pending draft
     await saveDraft({
       local_id: localId,
       sync_status: 'pending',

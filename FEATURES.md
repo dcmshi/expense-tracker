@@ -128,10 +128,10 @@ Organized by phase and component in recommended build order.
 
 ### 12. Mobile App — LocalExpenseDraft Management
 
-- [ ] Create draft locally on receipt capture start
-- [ ] Update `sync_status` as upload and ingestion steps complete
-- [ ] Clear draft after successful server sync (expense reaches `awaiting_user` or `verified`)
-- [ ] On app restart: resume any pending drafts that did not complete sync
+- [x] Create draft locally on receipt capture start
+- [x] Update `sync_status` as upload and ingestion steps complete
+- [x] Clear draft after successful server sync (expense reaches `awaiting_user` or `verified`)
+- [x] On app restart: resume any pending drafts that did not complete sync
 
 ---
 
