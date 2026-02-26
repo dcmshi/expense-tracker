@@ -10,13 +10,13 @@ import {
   Platform,
 } from 'react-native'
 import * as ImagePicker from 'expo-image-picker'
-import { manipulateAsync, SaveFormat } from 'expo-image-manipulator'
 import * as Crypto from 'expo-crypto'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack'
 import type { AddStackParamList } from '../navigation/types'
 import { createPresignedUpload } from '../api/uploads'
 import { ingestReceipt } from '../api/ingest'
 import { saveDraft, updateDraft } from '../storage/draftStorage'
+import { preprocessImage, uploadToPresignedUrl } from '../services/uploadHelpers'
 
 type Props = NativeStackScreenProps<AddStackParamList, 'ReceiptCapture'>
 
@@ -27,33 +27,6 @@ type Phase =
   | { name: 'preview'; uri: string }
   | { name: 'uploading'; uri: string; step: string }
   | { name: 'error'; uri: string | null; message: string }
-
-// ── Helpers ───────────────────────────────────────────────────────────────────
-
-async function preprocessImage(uri: string): Promise<string> {
-  // Resize to max 1600 px wide and compress to ~85 % quality JPEG.
-  // expo-image-manipulator preserves aspect ratio when only width is given.
-  const result = await manipulateAsync(
-    uri,
-    [{ resize: { width: 1600 } }],
-    { compress: 0.85, format: SaveFormat.JPEG },
-  )
-  return result.uri
-}
-
-async function uploadToPresignedUrl(presignedUrl: string, imageUri: string): Promise<void> {
-  // Fetch the local file as a blob then PUT it directly to S3.
-  const localResponse = await fetch(imageUri)
-  const blob = await localResponse.blob()
-  const uploadResponse = await fetch(presignedUrl, {
-    method: 'PUT',
-    body: blob,
-    headers: { 'Content-Type': 'image/jpeg' },
-  })
-  if (!uploadResponse.ok) {
-    throw new Error(`Storage upload failed (${uploadResponse.status})`)
-  }
-}
 
 // ── Screen ────────────────────────────────────────────────────────────────────
 

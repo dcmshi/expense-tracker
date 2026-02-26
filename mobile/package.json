@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "2.2.0",
+    "@react-native-community/netinfo": "11.4.1",
     "@react-navigation/bottom-tabs": "^7.15.0",
     "@react-navigation/native": "^7.1.29",
     "@react-navigation/native-stack": "^7.14.0",
@@ -18,12 +19,15 @@
     "expo-crypto": "~15.0.8",
     "expo-image-manipulator": "~14.0.8",
     "expo-image-picker": "~17.0.10",
-    "expo-speech-recognition": "~4.1.0",
+    "expo-notifications": "~0.32.16",
+    "expo-speech-recognition": "~3.1.1",
     "expo-status-bar": "~3.0.9",
     "react": "19.1.0",
     "react-native": "0.81.5",
     "react-native-safe-area-context": "~5.6.0",
-    "react-native-screens": "~4.16.0"
+    "react-native-screens": "~4.16.0",
+    "react-native-svg": "15.12.1",
+    "victory-native": "^36.9.2"
   },
   "devDependencies": {
     "@types/react": "~19.1.0",

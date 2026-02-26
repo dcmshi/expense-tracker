@@ -20,4 +20,5 @@ export type AddStackParamList = {
 export type RootTabParamList = {
   ExpensesTab: NavigatorScreenParams<ExpensesStackParamList>
   AddTab: NavigatorScreenParams<AddStackParamList>
+  AnalyticsTab: undefined
 }

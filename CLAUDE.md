@@ -269,7 +269,34 @@ Phase 3
 - `AddHubScreen`: Voice Entry button; voice draft resume (transcript_text path); draft row label distinguishes voice vs receipt
 - `EditVerifyScreen`: `ConfidenceBadge` for non-manual expenses — green ≥80%, amber ≥50%, red <50%
 
-### Phase 3 — Not started
+### Phase 3 — Complete
+
+**Mobile** (§17)
+- `services/uploadHelpers.ts`: extracted `preprocessImage` + `uploadToPresignedUrl` from ReceiptCaptureScreen
+- `services/syncManager.ts`: NetInfo subscription; `startListening` / `stopListening`; sequential retry of `pending` drafts on reconnect (receipt + voice paths)
+- `components/OfflineBanner.tsx`: amber banner shown across all tabs when offline
+- `AppNavigator.tsx`: renders OfflineBanner, calls `syncManager.startListening` on mount
+
+**Backend** (§18)
+- `services/analyticsService.ts`: `getAnalyticsSummary(from, to)` — Prisma groupBy for categories, `$queryRaw` for monthly trend; excludes uploaded/processing/failed expenses
+- `routes/analytics.ts`: `GET /analytics/summary?from&to` with Zod query validation; defaults to last 30 days
+
+**Mobile** (§18)
+- `api/analytics.ts`: `getAnalyticsSummary(from?, to?)` → `AnalyticsSummary`
+- `AnalyticsScreen.tsx`: period chips (1M/3M/1Y/All), total card, VictoryPie donut + legend, VictoryBar monthly trend, loading/empty/error states
+- `navigation/types.ts`: `AnalyticsTab: undefined` added to `RootTabParamList`
+- `AppNavigator.tsx`: third tab registered
+
+**Backend** (§19)
+- `services/notificationService.ts`: in-memory token store; `setToken`, `sendProcessingComplete`, `sendProcessingFailed` via Expo Push API (native fetch; silent no-op when no token)
+- `routes/device.ts`: `PUT /device-token`
+- `processingWorker.ts`: notification calls after `awaiting_user` and terminal `failed` transitions (non-fatal try/catch)
+
+**Mobile** (§19)
+- `navigation/navigationRef.ts`: `createNavigationContainerRef<RootTabParamList>()`
+- `services/notificationService.ts`: `requestPermissionsAndRegister`, `setupNotificationHandler`, `addNotificationResponseListener` (tap → navigate to EditVerify)
+- `App.tsx`: `navigationRef` passed to `<NavigationContainer ref={...}>`
+- `app.json`: expo-notifications config plugin added
 
 ------------------------------------------------------------------------
 

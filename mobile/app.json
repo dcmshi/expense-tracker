@@ -19,6 +19,13 @@
           "microphonePermission": "Allow $(PRODUCT_NAME) to use the microphone for voice expense entry.",
           "speechRecognitionPermission": "Allow $(PRODUCT_NAME) to use speech recognition for voice expense entry."
         }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/icon.png",
+          "color": "#111827"
+        }
       ]
     ],
     "ios": {

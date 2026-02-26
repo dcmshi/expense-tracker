@@ -4,6 +4,7 @@ import { fetchImageFromS3, extractOcrText } from './ocrClient'
 import { parseReceiptText } from './receiptParser'
 import { parseVoiceTranscript } from './voiceParser'
 import { suggestCategory } from './categoryMatcher'
+import { sendProcessingComplete, sendProcessingFailed } from '../services/notificationService'
 
 // ---------------------------------------------------------------------------
 // Config
@@ -143,6 +144,9 @@ async function processReceiptJob(job: ActiveJob): Promise<void> {
   })
 
   console.log(`[worker] Receipt job ${job.job_id} → awaiting_user (confidence: ${confidence.toFixed(3)}, category: ${category ?? 'none'})`)
+
+  try { await sendProcessingComplete(job.expense_id) }
+  catch (e) { console.error('[worker] Notification error (non-fatal):', e) }
 }
 
 // ---------------------------------------------------------------------------
@@ -185,6 +189,9 @@ async function processVoiceJob(job: ActiveJob): Promise<void> {
   })
 
   console.log(`[worker] Voice job ${job.job_id} → awaiting_user (confidence: ${confidence.toFixed(3)}, category: ${parsed.category ?? 'none'})`)
+
+  try { await sendProcessingComplete(job.expense_id) }
+  catch (e) { console.error('[worker] Notification error (non-fatal):', e) }
 }
 
 // ---------------------------------------------------------------------------
@@ -221,6 +228,11 @@ async function handleJobFailure(job: ActiveJob, err: unknown): Promise<void> {
       data:  { processing_status: nextStatus },
     })
   })
+
+  if (isFinal) {
+    try { await sendProcessingFailed(job.expense_id) }
+    catch (e) { console.error('[worker] Notification error (non-fatal):', e) }
+  }
 }
 
 // ---------------------------------------------------------------------------
