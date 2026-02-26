@@ -46,11 +46,17 @@ export default function AddHubScreen({ navigation }: Props) {
   )
 
   function handleResume(draft: LocalExpenseDraft) {
-    if (!draft.captured_image_path) return
-    navigation.navigate('ReceiptCapture', {
-      resumeLocalId: draft.local_id,
-      resumeImageUri: draft.captured_image_path,
-    })
+    if (draft.captured_image_path) {
+      navigation.navigate('ReceiptCapture', {
+        resumeLocalId: draft.local_id,
+        resumeImageUri: draft.captured_image_path,
+      })
+    } else if (draft.transcript_text) {
+      navigation.navigate('VoiceCapture', {
+        resumeLocalId: draft.local_id,
+        resumeTranscript: draft.transcript_text,
+      })
+    }
   }
 
   function handleDiscard(localId: string) {
@@ -87,6 +93,14 @@ export default function AddHubScreen({ navigation }: Props) {
         <Text style={styles.primaryBtnLabel}>Scan Receipt</Text>
       </TouchableOpacity>
 
+      <TouchableOpacity
+        style={styles.primaryBtn}
+        onPress={() => navigation.navigate('VoiceCapture', {})}
+        activeOpacity={0.8}
+      >
+        <Text style={styles.primaryBtnLabel}>Voice Entry</Text>
+      </TouchableOpacity>
+
       {pendingDrafts.length > 0 ? (
         <View style={styles.draftsSection}>
           <Text style={styles.sectionHeading}>Pending Captures</Text>
@@ -98,9 +112,14 @@ export default function AddHubScreen({ navigation }: Props) {
               <View style={styles.draftRow}>
                 <View style={styles.draftInfo}>
                   <Text style={styles.draftDate}>
-                    Captured {formatDraftDate(item.created_at)}
+                    {item.transcript_text ? 'Recorded' : 'Captured'}{' '}
+                    {formatDraftDate(item.created_at)}
                   </Text>
-                  <Text style={styles.draftStatus}>Upload incomplete</Text>
+                  <Text style={styles.draftStatus}>
+                    {item.transcript_text
+                      ? 'Voice capture incomplete'
+                      : 'Upload incomplete'}
+                  </Text>
                 </View>
                 <View style={styles.draftActions}>
                   <TouchableOpacity

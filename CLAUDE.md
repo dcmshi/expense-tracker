@@ -253,7 +253,21 @@ Phase 3
 - Edit/Verify screen: receipt preview, in-flight polling, editable fields, confirm + delete
 - LocalExpenseDraft management: draft created on capture, sync\_status tracked through pipeline, draft cleared on server sync, pending drafts surfaced in AddHub for resume on app restart
 
-### Phase 2 — Not started
+### Phase 2 — Complete
+
+**Backend** (§13–§16)
+- `categoryMatcher.ts`: keyword regex map, `suggestCategory(merchant, text)` → category label or null
+- `voiceParser.ts`: `parseVoiceTranscript(transcript)` — extracts amount ($X / X dollars), merchant (at/from pattern), date (relative + formatted), category via matcher
+- `ingestService.ts`: `ingestVoice(transcript, idempotencyKey)` — same idempotent pattern as receipt
+- `POST /ingest/voice` route: idempotency-key validation, delegates to ingestVoice
+- `processingWorker.ts`: refactored — branches on `expense.source`; `processReceiptJob` (existing logic + confidence + category); `processVoiceJob` (transcript parse, no S3/OCR); `computeConfidence` (0.5 amount + 0.3 date + 0.2 merchant)
+
+**Mobile** (§13–§16)
+- `expo-speech-recognition` added to package.json + app.json (config plugin + mic/speech permissions)
+- `api/ingest.ts`: `ingestVoice(transcript, idempotencyKey)` added
+- `VoiceCaptureScreen`: idle → listening → preview → uploading → EditVerify; mic permission request; live partial transcript; resume support
+- `AddHubScreen`: Voice Entry button; voice draft resume (transcript_text path); draft row label distinguishes voice vs receipt
+- `EditVerifyScreen`: `ConfidenceBadge` for non-manual expenses — green ≥80%, amber ≥50%, red <50%
 
 ### Phase 3 — Not started
 

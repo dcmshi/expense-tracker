@@ -62,6 +62,17 @@ function StatusBadge({ status }: { status: ProcessingStatus }) {
   )
 }
 
+function ConfidenceBadge({ confidence }: { confidence: number }) {
+  const pct = Math.round(confidence * 100)
+  const bg = confidence >= 0.8 ? '#D1FAE5' : confidence >= 0.5 ? '#FEF3C7' : '#FEE2E2'
+  const fg = confidence >= 0.8 ? '#065F46' : confidence >= 0.5 ? '#92400E' : '#991B1B'
+  return (
+    <View style={[styles.badge, { backgroundColor: bg, marginBottom: 12 }]}>
+      <Text style={[styles.badgeText, { color: fg }]}>{pct}% confidence</Text>
+    </View>
+  )
+}
+
 function Field({
   label,
   error,
@@ -350,6 +361,11 @@ export default function EditVerifyScreen({ route, navigation }: Props) {
             <Text style={styles.verifiedNote}>You verified this</Text>
           ) : null}
         </View>
+
+        {/* Confidence badge — shown for non-manual sources once parsed */}
+        {exp.source !== 'manual' && exp.confidence != null ? (
+          <ConfidenceBadge confidence={parseFloat(exp.confidence)} />
+        ) : null}
 
         <Field label="Amount *" error={formErrors.amount}>
           <TextInput

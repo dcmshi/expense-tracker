@@ -12,6 +12,7 @@ import ExpenseListScreen from '../screens/ExpenseListScreen'
 import EditVerifyScreen from '../screens/EditVerifyScreen'
 import ManualEntryScreen from '../screens/ManualEntryScreen'
 import ReceiptCaptureScreen from '../screens/ReceiptCaptureScreen'
+import VoiceCaptureScreen from '../screens/VoiceCaptureScreen'
 import AddHubScreen from '../screens/AddHubScreen'
 
 const Tab = createBottomTabNavigator<RootTabParamList>()
@@ -52,6 +53,11 @@ function AddNavigator() {
         name="ReceiptCapture"
         component={ReceiptCaptureScreen}
         options={{ title: 'Scan Receipt' }}
+      />
+      <AddStack.Screen
+        name="VoiceCapture"
+        component={VoiceCaptureScreen}
+        options={{ title: 'Voice Entry' }}
       />
     </AddStack.Navigator>
   )

@@ -2,6 +2,8 @@ import 'dotenv/config'
 import prisma from '../lib/db'
 import { fetchImageFromS3, extractOcrText } from './ocrClient'
 import { parseReceiptText } from './receiptParser'
+import { parseVoiceTranscript } from './voiceParser'
+import { suggestCategory } from './categoryMatcher'
 
 // ---------------------------------------------------------------------------
 // Config
@@ -20,9 +22,25 @@ interface ActiveJob {
   attempt_count: number
   max_attempts:  number
   expense: {
+    source:            string
     receipt_url:       string | null
+    raw_input:         Record<string, unknown>
     processing_status: string
   }
+}
+
+// ---------------------------------------------------------------------------
+// Confidence scoring — shared across receipt and voice jobs
+// ---------------------------------------------------------------------------
+
+function computeConfidence(parsed: {
+  amount:   number | null
+  date:     string | null
+  merchant: string | null
+}): number {
+  return (parsed.amount   !== null ? 0.5 : 0)
+       + (parsed.date     !== null ? 0.3 : 0)
+       + (parsed.merchant !== null ? 0.2 : 0)
 }
 
 // ---------------------------------------------------------------------------
@@ -33,7 +51,16 @@ async function processPendingJobs(): Promise<void> {
   const jobs = await prisma.processingJob.findMany({
     where:   { status: { in: ['uploaded', 'processing'] } },
     orderBy: { created_at: 'asc' },       // FIFO — uses the partial index
-    include: { expense: { select: { receipt_url: true, processing_status: true } } },
+    include: {
+      expense: {
+        select: {
+          source:            true,
+          receipt_url:       true,
+          raw_input:         true,
+          processing_status: true,
+        },
+      },
+    },
   })
 
   if (jobs.length > 0) {
@@ -41,68 +68,123 @@ async function processPendingJobs(): Promise<void> {
   }
 
   for (const job of jobs) {
-    await processJob(job)
+    await processJob(job as ActiveJob)
   }
 }
 
 // ---------------------------------------------------------------------------
-// Single-job processing
+// Job dispatcher — branches on expense source
 // ---------------------------------------------------------------------------
 
 async function processJob(job: ActiveJob): Promise<void> {
-  console.log(`[worker] Processing job ${job.job_id} (attempt ${job.attempt_count + 1}/${job.max_attempts})`)
+  console.log(`[worker] Processing job ${job.job_id} (attempt ${job.attempt_count + 1}/${job.max_attempts}, source: ${job.expense.source})`)
 
   try {
-    // 1. Transition → processing
     await setStatus(job.job_id, job.expense_id, 'processing')
 
-    // 2. Get the receipt image from S3 (receipt_url stores the object key)
-    const objectKey = job.expense.receipt_url
-    if (!objectKey) {
-      throw new Error('Expense has no receipt_url — cannot process')
+    if (job.expense.source === 'voice') {
+      await processVoiceJob(job)
+    } else {
+      await processReceiptJob(job)
     }
-    const imageBuffer = await fetchImageFromS3(objectKey)
-
-    // 3. OCR via Google Vision API
-    const ocrText = await extractOcrText(imageBuffer)
-    console.log(`[worker] OCR complete for job ${job.job_id} (${ocrText.length} chars)`)
-
-    // 4. Heuristic parsing
-    const parsed = parseReceiptText(ocrText)
-    console.log(`[worker] Parsed — amount: ${parsed.amount}, merchant: ${parsed.merchant}, date: ${parsed.date}`)
-
-    // 5. Persist parsed data and transition → awaiting_user
-    //    'parsed' and 'awaiting_user' are combined into a single write for MVP.
-    //    The expense is now ready for user review and confirmation.
-    await prisma.$transaction(async (tx) => {
-      await tx.expense.update({
-        where: { id: job.expense_id },
-        data: {
-          processing_status: 'awaiting_user',
-          ...(parsed.amount   !== null && { amount:   parsed.amount }),
-          ...(parsed.merchant !== null && { merchant: parsed.merchant }),
-          ...(parsed.date     !== null && { date:     new Date(parsed.date) }),
-          currency:  parsed.currency,
-          // JSON.parse/stringify strips the TypeScript interface type so Prisma
-          // accepts it as InputJsonValue without index-signature complaints.
-          raw_input: JSON.parse(JSON.stringify({
-            ocr_text:   ocrText,
-            line_items: parsed.line_items,
-          })),
-        },
-      })
-
-      await tx.processingJob.update({
-        where: { job_id: job.job_id },
-        data:  { status: 'awaiting_user' },
-      })
-    })
-
-    console.log(`[worker] Job ${job.job_id} → awaiting_user`)
-
   } catch (err) {
     await handleJobFailure(job, err)
   }
+}
+
+// ---------------------------------------------------------------------------
+// Receipt job — OCR → heuristic parse → persist
+// ---------------------------------------------------------------------------
+
+async function processReceiptJob(job: ActiveJob): Promise<void> {
+  // 1. Get the receipt image from S3 (receipt_url stores the object key)
+  const objectKey = job.expense.receipt_url
+  if (!objectKey) {
+    throw new Error('Expense has no receipt_url — cannot process')
+  }
+  const imageBuffer = await fetchImageFromS3(objectKey)
+
+  // 2. OCR via Google Vision API
+  const ocrText = await extractOcrText(imageBuffer)
+  console.log(`[worker] OCR complete for job ${job.job_id} (${ocrText.length} chars)`)
+
+  // 3. Heuristic parsing
+  const parsed = parseReceiptText(ocrText)
+  console.log(`[worker] Parsed — amount: ${parsed.amount}, merchant: ${parsed.merchant}, date: ${parsed.date}`)
+
+  // 4. Category suggestion + confidence
+  const category   = suggestCategory(parsed.merchant, ocrText)
+  const confidence = computeConfidence(parsed)
+
+  // 5. Persist parsed data and transition → awaiting_user
+  //    'parsed' and 'awaiting_user' are combined into a single write for MVP.
+  await prisma.$transaction(async (tx) => {
+    await tx.expense.update({
+      where: { id: job.expense_id },
+      data: {
+        processing_status: 'awaiting_user',
+        ...(parsed.amount   !== null && { amount:   parsed.amount }),
+        ...(parsed.merchant !== null && { merchant: parsed.merchant }),
+        ...(parsed.date     !== null && { date:     new Date(parsed.date) }),
+        ...(category        !== null && { category }),
+        currency:   parsed.currency,
+        confidence,
+        raw_input: JSON.parse(JSON.stringify({
+          ocr_text:   ocrText,
+          line_items: parsed.line_items,
+        })),
+      },
+    })
+
+    await tx.processingJob.update({
+      where: { job_id: job.job_id },
+      data:  { status: 'awaiting_user' },
+    })
+  })
+
+  console.log(`[worker] Receipt job ${job.job_id} → awaiting_user (confidence: ${confidence.toFixed(3)}, category: ${category ?? 'none'})`)
+}
+
+// ---------------------------------------------------------------------------
+// Voice job — parse transcript → persist (no S3/OCR step)
+// ---------------------------------------------------------------------------
+
+async function processVoiceJob(job: ActiveJob): Promise<void> {
+  const transcript = job.expense.raw_input.transcript as string
+  if (!transcript) {
+    throw new Error('Expense raw_input has no transcript — cannot process')
+  }
+
+  // 1. Parse the transcript with heuristic rules
+  const parsed = parseVoiceTranscript(transcript)
+  console.log(`[worker] Voice parsed — amount: ${parsed.amount}, merchant: ${parsed.merchant}, date: ${parsed.date}`)
+
+  // 2. Confidence + category (category already set by voiceParser but recompute for consistency)
+  const confidence = computeConfidence(parsed)
+
+  // 3. Persist and transition → awaiting_user
+  await prisma.$transaction(async (tx) => {
+    await tx.expense.update({
+      where: { id: job.expense_id },
+      data: {
+        processing_status: 'awaiting_user',
+        ...(parsed.amount   !== null && { amount:   parsed.amount }),
+        ...(parsed.merchant !== null && { merchant: parsed.merchant }),
+        ...(parsed.date     !== null && { date:     new Date(parsed.date) }),
+        ...(parsed.category !== null && { category: parsed.category }),
+        currency:   parsed.currency,
+        confidence,
+        raw_input: JSON.parse(JSON.stringify({ transcript })),
+      },
+    })
+
+    await tx.processingJob.update({
+      where: { job_id: job.job_id },
+      data:  { status: 'awaiting_user' },
+    })
+  })
+
+  console.log(`[worker] Voice job ${job.job_id} → awaiting_user (confidence: ${confidence.toFixed(3)}, category: ${parsed.category ?? 'none'})`)
 }
 
 // ---------------------------------------------------------------------------
@@ -151,8 +233,8 @@ async function setStatus(
   status:    string,
 ): Promise<void> {
   await prisma.$transaction(async (tx) => {
-    await tx.processingJob.update({ where: { job_id: jobId },    data: { status } })
-    await tx.expense.update(      { where: { id: expenseId },    data: { processing_status: status } })
+    await tx.processingJob.update({ where: { job_id: jobId },  data: { status } })
+    await tx.expense.update(      { where: { id: expenseId },  data: { processing_status: status } })
   })
 }
 

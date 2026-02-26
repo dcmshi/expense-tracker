@@ -90,11 +90,20 @@ This enables offline capture and reliable sync.
 
 ## 7. Confidence Scoring
 
-Confidence exists in schema from Phase 1 but is computed later.
+Confidence exists in schema from Phase 1 and is computed by the worker in Phase 2.
 
-Phase 1 behavior: - manual entry → 1.0 - voice → null - receipt → null
+Phase 1 behavior:
+- manual entry → `confidence: 1.0` (set at creation, no worker involved)
+- receipt / voice → `confidence: null` until worker processes the job
 
-Phase 2: - worker computes confidence from OCR and parsing signals
+Phase 2 implementation:
+- Worker computes confidence from parse completeness (source-agnostic formula):
+  - `+0.5` if amount is extracted
+  - `+0.3` if date is extracted
+  - `+0.2` if merchant is extracted
+- Range: 0.000 (nothing parsed) to 1.000 (all three extracted)
+- Stored as `NUMERIC(4,3)` on the Expense record
+- Mobile displays a colour-coded badge: green ≥80%, amber ≥50%, red <50%
 
 ------------------------------------------------------------------------
 

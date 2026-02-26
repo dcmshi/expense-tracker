@@ -12,6 +12,15 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
+    "plugins": [
+      [
+        "expo-speech-recognition",
+        {
+          "microphonePermission": "Allow $(PRODUCT_NAME) to use the microphone for voice expense entry.",
+          "speechRecognitionPermission": "Allow $(PRODUCT_NAME) to use speech recognition for voice expense entry."
+        }
+      ]
+    ],
     "ios": {
       "supportsTablet": true
     },

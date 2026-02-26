@@ -74,3 +74,8 @@ export interface IngestReceiptResponse {
   expense_id: string
   processing_status: ProcessingStatus
 }
+
+export interface IngestVoiceResponse {
+  expense_id: string
+  processing_status: ProcessingStatus
+}

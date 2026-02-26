@@ -2,7 +2,7 @@ import { Router } from 'express'
 import { z } from 'zod'
 import { AppError } from '../middleware/errorHandler'
 import { validate } from '../middleware/validate'
-import { ingestReceipt } from '../services/ingestService'
+import { ingestReceipt, ingestVoice } from '../services/ingestService'
 
 const router = Router()
 
@@ -51,7 +51,47 @@ router.post('/receipt', validate(ingestReceiptSchema), async (req, res, next) =>
   }
 })
 
-// POST /ingest/voice — Phase 2
-// router.post('/voice', ...)
+const ingestVoiceSchema = z.object({
+  transcript: z.string().min(1, 'transcript is required'),
+})
+
+// POST /ingest/voice — submit voice transcript; creates processing job
+//
+// Headers:
+//   Idempotency-Key: <UUID>  (required)
+//
+// Body:
+//   { transcript: string }
+//
+// Response 200:
+//   { expense_id, processing_status }
+//
+// Idempotency: duplicate requests return the existing expense_id without
+// creating a second job.
+router.post('/voice', validate(ingestVoiceSchema), async (req, res, next) => {
+  try {
+    const rawKey = req.headers['idempotency-key']
+
+    if (!rawKey) {
+      throw new AppError(400, 'Idempotency-Key header is required')
+    }
+
+    const parsed = idempotencyKeySchema.safeParse(
+      Array.isArray(rawKey) ? rawKey[0] : rawKey,
+    )
+    if (!parsed.success) {
+      throw new AppError(400, `Invalid Idempotency-Key: ${parsed.error.issues[0].message}`)
+    }
+
+    const result = await ingestVoice(req.body.transcript, parsed.data)
+
+    res.status(200).json({
+      expense_id: result.expense_id,
+      processing_status: result.processing_status,
+    })
+  } catch (err) {
+    next(err)
+  }
+})
 
 export default router

@@ -139,30 +139,33 @@ Organized by phase and component in recommended build order.
 
 ### 13. Voice Input — Mobile
 
-- [ ] Microphone permission request and handling
-- [ ] On-device audio recording
-- [ ] On-device speech-to-text conversion
-- [ ] Display transcript for user review before submitting
-- [ ] `POST /ingest/voice` with transcript + Idempotency-Key header
-- [ ] Navigate to Edit/Verify screen
+- [x] Microphone permission request and handling (`ExpoSpeechRecognitionModule.requestPermissionsAsync`)
+- [x] On-device audio recording and speech-to-text (`expo-speech-recognition`)
+- [x] Display live partial transcript while listening
+- [x] Display full transcript for user review before submitting (`preview` phase)
+- [x] `POST /ingest/voice` with transcript + Idempotency-Key header
+- [x] Save LocalExpenseDraft (`transcript_text`) and resume on app restart
+- [x] Navigate to Edit/Verify screen
 
 ### 14. Voice Input — Backend
 
-- [ ] `POST /ingest/voice` — accept transcript, create Expense draft + ProcessingJob (`source: voice`)
-- [ ] Idempotency: same contract as receipt ingestion
-- [ ] Voice parser worker — extract structured fields (amount, merchant, date, currency) from transcript text
-- [ ] Transition to `awaiting_user` on successful parse
+- [x] `POST /ingest/voice` — accept transcript, create Expense draft + ProcessingJob (`source: voice`)
+- [x] Idempotency: same contract as receipt ingestion (Idempotency-Key header, dedup on processingJob)
+- [x] `voiceParser.ts` — extract amount (`$X` / `X dollars/bucks`), merchant (`at/from <Name>`), date (relative + formatted), currency
+- [x] Worker branches on `expense.source` → `processVoiceJob` (no S3/OCR) or `processReceiptJob`
+- [x] Transition to `awaiting_user` on successful parse
 
 ### 15. Confidence Scoring
 
-- [ ] Worker computes confidence score from OCR signal quality and parse completeness
-- [ ] Store computed `confidence` on Expense record (0.000–1.000)
-- [ ] Mobile: display confidence indicator on Edit/Verify screen
+- [x] Worker computes confidence from parse completeness: amount 0.5 + date 0.3 + merchant 0.2
+- [x] Store computed `confidence` on Expense record (0.000–1.000); applied to both receipt and voice jobs
+- [x] Mobile: `ConfidenceBadge` on Edit/Verify screen — green ≥80%, amber ≥50%, red <50%
 
 ### 16. Category Suggestion
 
-- [ ] Keyword or heuristic-based category inference from merchant name and OCR text
-- [ ] Pre-populate category field in Edit/Verify screen with suggested value (user can override)
+- [x] `categoryMatcher.ts` — 8-category keyword regex map (Groceries, Restaurant, Fuel, Transport, Utilities, Healthcare, Shopping, Entertainment)
+- [x] Applied in both receipt worker (merchant + OCR text) and voice parser (merchant + transcript)
+- [x] Pre-populates category field in Edit/Verify screen; user can override
 
 ---
 
