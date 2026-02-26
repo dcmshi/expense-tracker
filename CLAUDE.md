@@ -160,14 +160,21 @@ Phase 1 endpoints:
     PATCH /expenses/{id}       — edit or verify expense
     DELETE /expenses/{id}      — delete expense
 
-Idempotency: POST /uploads and POST /ingest/receipt require an
+Phase 2 endpoints:
+
+    POST /ingest/voice         — submit transcript, create processing job
+
+Phase 3 endpoints:
+
+    GET  /analytics/summary    — category + monthly breakdown (?from&to, YYYY-MM-DD; defaults to last 30 days)
+    PUT  /device-token         — register Expo push token { token: string }
+
+Idempotency: POST /uploads and POST /ingest/* require an
 Idempotency-Key: <UUID> header. Duplicate requests return the original
 result without creating duplicate jobs.
 
 API versioning: no /v1/ prefix in MVP. Versioning introduced when
 breaking changes or external clients require it.
-
-Voice ingestion (POST /ingest/voice) is introduced in Phase 2.
 
 ------------------------------------------------------------------------
 
@@ -228,9 +235,9 @@ Phase 2
 - Category suggestion
 
 Phase 3
-- Offline sync
-- Analytics dashboard
-- Notifications
+- Offline sync (auto-retry pending drafts on reconnect, OfflineBanner)
+- Analytics dashboard (category donut, monthly bar chart, configurable period)
+- Push notifications (processing complete/failed → Expo Push API, tap → EditVerify)
 
 ------------------------------------------------------------------------
 

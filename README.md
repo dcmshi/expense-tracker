@@ -1,6 +1,6 @@
 # Mobile Expense Tracker
 
-A mobile-first expense tracker with receipt OCR, voice input, and async backend processing. Built as a portfolio project demonstrating mobile ingestion architecture, idempotent API design, and human-in-the-loop data verification workflows.
+A mobile-first expense tracker with receipt OCR, voice input, async backend processing, offline sync, and analytics. Built as a portfolio project demonstrating mobile ingestion architecture, idempotent API design, and human-in-the-loop data verification workflows.
 
 ---
 
@@ -14,6 +14,9 @@ A mobile-first expense tracker with receipt OCR, voice input, and async backend 
 - **Confidence scoring** — 0–100% badge indicating parse completeness (amount + date + merchant)
 - **Category suggestion** — keyword matching across 8 categories applied to merchant name and OCR/transcript text
 - **Offline-friendly drafts** — captures persist locally and resume after app restart
+- **Auto-sync on reconnect** — pending drafts upload automatically when connectivity is restored
+- **Analytics dashboard** — category breakdown (donut chart), monthly trend (bar chart), configurable time range
+- **Push notifications** — notified when receipt processing completes or fails; tap to open directly in Edit & Verify
 - **Idempotent ingestion** — safe to retry uploads and ingest calls on network failure
 
 ---
@@ -21,47 +24,53 @@ A mobile-first expense tracker with receipt OCR, voice input, and async backend 
 ## Architecture
 
 ```
-┌─────────────────────────────────────────┐
-│           Mobile App (Expo)             │
-│                                         │
-│  VoiceCaptureScreen                     │
-│  ReceiptCaptureScreen  ──────────────┐  │
-│  ManualEntryScreen                   │  │
-│  EditVerifyScreen (polling + badge)  │  │
-│  AddHubScreen + draft resume         │  │
-└───────────────────┬──────────────────┘  │
-                    │ HTTPS               │
-                    ▼                     │
-┌─────────────────────────────────────────┐
-│           Backend API (Express/TS)      │
-│                                         │
-│  POST /uploads          (presigned URL) │
-│  POST /ingest/receipt   (idempotent)    │
-│  POST /ingest/voice     (idempotent)    │
-│  GET|PATCH|DELETE /expenses/{id}        │
-│  GET /expenses                          │
-└────────┬────────────────────────────────┘
-         │
-    ┌────┴──────────────────┐
-    │                       │
-    ▼                       ▼
-┌──────────┐         ┌────────────┐
-│PostgreSQL│         │   MinIO    │
-│          │         │ (S3-compat)│
-│expenses  │         │  receipts  │
-│proc_jobs │         │   bucket   │
-│uploads   │         └────────────┘
+┌──────────────────────────────────────────────────┐
+│                 Mobile App (Expo)                │
+│                                                  │
+│  VoiceCaptureScreen                              │
+│  ReceiptCaptureScreen  ──────────────────────┐  │
+│  ManualEntryScreen                           │  │
+│  EditVerifyScreen  (polling + confidence)    │  │
+│  AnalyticsScreen   (charts + period filter)  │  │
+│  AddHubScreen      (draft resume)            │  │
+│  OfflineBanner     (NetInfo)                 │  │
+│  syncManager       (auto-retry on reconnect) │  │
+└──────────────────────┬───────────────────────┘  │
+                       │ HTTPS                     │
+                       ▼
+┌──────────────────────────────────────────────────┐
+│              Backend API (Express/TS)            │
+│                                                  │
+│  POST /uploads              (presigned URL)      │
+│  POST /ingest/receipt       (idempotent)         │
+│  POST /ingest/voice         (idempotent)         │
+│  GET|PATCH|DELETE /expenses/{id}                 │
+│  GET  /expenses                                  │
+│  GET  /analytics/summary?from&to                 │
+│  PUT  /device-token                              │
+└───────┬──────────────────────────────────────────┘
+        │
+   ┌────┴───────────────────┐
+   │                        │
+   ▼                        ▼
+┌──────────┐          ┌────────────┐
+│PostgreSQL│          │   MinIO    │
+│          │          │ (S3-compat)│
+│expenses  │          │  receipts  │
+│proc_jobs │          │   bucket   │
+│uploads   │          └────────────┘
 └──────────┘
-         ▲
-         │ polls every 5s
-┌────────┴────────────────────────────────┐
-│         Processing Worker               │
-│                                         │
-│  receipt → fetchS3 → OCR → parse       │
-│  voice   → parseTranscript              │
-│  both    → confidence + category        │
-│  → awaiting_user (or failed after N)    │
-└─────────────────────────────────────────┘
+        ▲
+        │ polls every 5s
+┌───────┴──────────────────────────────────────────┐
+│               Processing Worker                  │
+│                                                  │
+│  receipt → fetchS3 → OCR → parse                │
+│  voice   → parseTranscript                       │
+│  both    → confidence + category                 │
+│  → awaiting_user (or failed after N retries)     │
+│  → sendProcessingComplete / sendProcessingFailed │
+└──────────────────────────────────────────────────┘
 ```
 
 ---
@@ -75,11 +84,15 @@ A mobile-first expense tracker with receipt OCR, voice input, and async backend 
 | Local storage | AsyncStorage (`@react-native-async-storage`) |
 | Voice | expo-speech-recognition (on-device STT) |
 | Image | expo-image-picker, expo-image-manipulator |
+| Connectivity | @react-native-community/netinfo |
+| Charts | victory-native (v36) |
+| Notifications | expo-notifications |
 | Backend | Node.js, TypeScript, Express |
 | ORM | Prisma |
 | Database | PostgreSQL 16 |
 | Object storage | MinIO (S3-compatible; swap for AWS S3 in production) |
 | OCR | Google Vision API |
+| Push delivery | Expo Push API |
 
 ---
 
@@ -141,7 +154,8 @@ capture photo
   → POST /ingest/receipt  →  expense (status: uploaded) + ProcessingJob
   → worker: fetchS3 → Google Vision OCR → heuristic parse
   → expense updated: amount, merchant, date, category, confidence
-  → status: awaiting_user  →  user reviews in EditVerifyScreen
+  → status: awaiting_user  →  push notification sent
+  → user reviews in EditVerifyScreen
   → PATCH /expenses/{id} with is_user_verified: true  →  status: verified
 ```
 
@@ -154,8 +168,20 @@ tap Record  →  request mic + speech permissions
   → POST /ingest/voice  →  expense (status: uploaded) + ProcessingJob
   → worker: parseVoiceTranscript (amount / merchant / date regex)
   → expense updated: amount, merchant, date, category, confidence
-  → status: awaiting_user  →  user reviews in EditVerifyScreen
+  → status: awaiting_user  →  push notification sent
+  → user reviews in EditVerifyScreen
   → PATCH /expenses/{id} with is_user_verified: true  →  status: verified
+```
+
+### Offline sync
+
+```
+no connection  →  draft saved locally (sync_status: pending)
+  → OfflineBanner shown across all tabs
+  → connectivity restored  →  syncManager fires automatically
+  → pending drafts retried sequentially
+  → each draft: preprocess → upload → ingest (fresh idempotency key)
+  → sync_status: uploaded  →  expense appears in list
 ```
 
 ### Job state machine
@@ -181,6 +207,8 @@ All endpoints at `http://localhost:3000`. No auth in MVP.
 | `GET` | `/expenses/:id` | Get single expense including `processing_status` for client polling. |
 | `PATCH` | `/expenses/:id` | Edit fields or set `is_user_verified: true` to verify. |
 | `DELETE` | `/expenses/:id` | Delete expense; cascades to processing jobs. |
+| `GET` | `/analytics/summary` | Category + monthly breakdown. Optional `from`/`to` query params (YYYY-MM-DD). Defaults to last 30 days. |
+| `PUT` | `/device-token` | Register Expo push token `{ token: string }`. |
 
 Idempotency: `POST /uploads` and `POST /ingest/*` accept an `Idempotency-Key: <UUID>` header. Duplicate requests return the original result without creating a second job.
 
@@ -246,35 +274,49 @@ expense-tracker/
 │       ├── routes/
 │       │   ├── expenses.ts     # CRUD
 │       │   ├── uploads.ts      # POST /uploads
-│       │   └── ingest.ts       # POST /ingest/receipt + /voice
+│       │   ├── ingest.ts       # POST /ingest/receipt + /voice
+│       │   ├── analytics.ts    # GET /analytics/summary
+│       │   └── device.ts       # PUT /device-token
 │       ├── services/
-│       │   └── ingestService.ts
+│       │   ├── ingestService.ts
+│       │   ├── analyticsService.ts  # groupBy categories + monthly $queryRaw
+│       │   └── notificationService.ts  # Expo Push API (in-memory token)
 │       └── workers/
-│           ├── processingWorker.ts   # poll loop + job dispatch
+│           ├── processingWorker.ts   # poll loop + job dispatch + notifications
 │           ├── receiptParser.ts      # OCR text → structured fields
 │           ├── voiceParser.ts        # transcript → structured fields
 │           ├── categoryMatcher.ts    # keyword → category label
 │           └── ocrClient.ts          # Google Vision API + S3 fetch
 │
 └── mobile/
-    ├── app.json                # Expo config + speech-recognition plugin
+    ├── App.tsx                 # NavigationContainer with navigationRef
+    ├── app.json                # Expo config + plugins (speech, notifications)
     ├── package.json
     └── src/
         ├── api/
         │   ├── client.ts       # axios instance
         │   ├── expenses.ts
         │   ├── uploads.ts
-        │   └── ingest.ts       # ingestReceipt + ingestVoice
+        │   ├── ingest.ts       # ingestReceipt + ingestVoice
+        │   └── analytics.ts    # getAnalyticsSummary
+        ├── components/
+        │   └── OfflineBanner.tsx    # amber bar when offline
         ├── navigation/
-        │   ├── types.ts
-        │   └── AppNavigator.tsx
+        │   ├── types.ts             # RootTabParamList (3 tabs)
+        │   ├── AppNavigator.tsx     # tabs + OfflineBanner + sync + notifications
+        │   └── navigationRef.ts     # shared ref for notification tap navigation
         ├── screens/
         │   ├── AddHubScreen.tsx         # entry point + draft resume
         │   ├── ManualEntryScreen.tsx
         │   ├── ReceiptCaptureScreen.tsx
         │   ├── VoiceCaptureScreen.tsx
         │   ├── EditVerifyScreen.tsx     # polling + confidence badge
-        │   └── ExpenseListScreen.tsx
+        │   ├── ExpenseListScreen.tsx
+        │   └── AnalyticsScreen.tsx      # period chips, donut, bar chart
+        ├── services/
+        │   ├── uploadHelpers.ts         # preprocessImage, uploadToPresignedUrl
+        │   ├── syncManager.ts           # NetInfo → auto-retry pending drafts
+        │   └── notificationService.ts   # permissions, handler, tap listener
         ├── storage/
         │   └── draftStorage.ts  # AsyncStorage CRUD for LocalExpenseDraft
         └── types/index.ts
@@ -288,4 +330,4 @@ expense-tracker/
 |---|---|---|
 | Phase 1 | Complete | Manual entry, receipt OCR pipeline, expense CRUD, edit/verify screen, draft management |
 | Phase 2 | Complete | Voice input, confidence scoring, category suggestion |
-| Phase 3 | Not started | Offline sync, analytics dashboard, push notifications |
+| Phase 3 | Complete | Offline auto-sync, analytics dashboard, push notifications |
