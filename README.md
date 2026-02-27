@@ -324,6 +324,46 @@ expense-tracker/
 
 ---
 
+## Testing
+
+Both packages have a full Jest test suite that runs without a live database, S3, or device.
+
+### Backend
+
+```bash
+cd backend && npm test
+```
+
+13 suites · 119 tests covering:
+
+| Area | What's tested |
+|---|---|
+| Workers | `categoryMatcher`, `receiptParser`, `voiceParser` — pure unit tests |
+| Services | `uploadService`, `ingestService`, `expenseService`, `analyticsService`, `notificationService` — Prisma + S3 mocked via `moduleNameMapper` |
+| Routes | All 5 route files — mini Express apps, service layer fully mocked |
+
+Stack: **Jest 30 + ts-jest + supertest**
+
+### Mobile
+
+```bash
+cd mobile && npm test
+```
+
+10 suites · 67 tests covering:
+
+| Area | What's tested |
+|---|---|
+| API modules | `expenses`, `uploads`, `ingest`, `analytics` — axios client mocked |
+| Storage | `draftStorage` — full CRUD against in-memory AsyncStorage mock |
+| Services | `uploadHelpers`, `syncManager`, `notificationService` — native deps mocked |
+| Components | `OfflineBanner` — all NetInfo connectivity states |
+| Screens | `AnalyticsScreen` — loading / empty / data / error / period-chip states |
+
+Stack: **Jest 29 + jest-expo + @testing-library/react-native**
+
+---
+
 ## Implementation Status
 
 | Phase | Status | Scope |

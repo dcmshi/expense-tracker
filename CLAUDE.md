@@ -305,6 +305,25 @@ Phase 3
 - `App.tsx`: `navigationRef` passed to `<NavigationContainer ref={...}>`
 - `app.json`: expo-notifications config plugin added
 
+### Test Infrastructure — Complete
+
+**Backend** (`backend/`)
+- `jest.config.js`: preset ts-jest, `moduleNameMapper` redirects `lib/db` → Prisma mock, `lib/s3` → S3 stub, `uuid` → CJS stub (uuid v13 ships ESM-only)
+- `src/__mocks__/db.ts`: all Prisma methods as `jest.fn()`; `$transaction` calls its callback with the mock client
+- `src/__mocks__/s3.ts`: exports stub bucket name + TTL constant
+- `src/__mocks__/uuid.js`: CJS shim returning deterministic `'test-uuid-v4'`
+- 13 suites, 119 tests — workers, services, all route files
+
+**Mobile** (`mobile/`)
+- `jest.config.js`: preset jest-expo (jest@29), `moduleNameMapper` redirects AsyncStorage → in-memory mock, `transformIgnorePatterns` includes all Expo/RN packages
+- 10 suites, 67 tests — api modules, draftStorage, services (uploadHelpers, syncManager, notificationService), OfflineBanner component, AnalyticsScreen
+
+**Running tests**
+```bash
+cd backend && npm test
+cd mobile  && npm test
+```
+
 ------------------------------------------------------------------------
 
 ## Portfolio Value
