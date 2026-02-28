@@ -131,6 +131,7 @@ export default function ManualEntryScreen({ navigation }: Props) {
       >
         <Field label="Amount *" error={errors.amount}>
           <TextInput
+            testID="amount-input"
             style={[styles.input, errors.amount ? styles.inputError : null]}
             value={form.amount}
             onChangeText={(v) => setField('amount', v)}
@@ -143,6 +144,7 @@ export default function ManualEntryScreen({ navigation }: Props) {
 
         <Field label="Merchant">
           <TextInput
+            testID="merchant-input"
             style={styles.input}
             value={form.merchant}
             onChangeText={(v) => setField('merchant', v)}
@@ -154,6 +156,7 @@ export default function ManualEntryScreen({ navigation }: Props) {
 
         <Field label="Category">
           <TextInput
+            testID="category-input"
             style={styles.input}
             value={form.category}
             onChangeText={(v) => setField('category', v)}
@@ -165,6 +168,7 @@ export default function ManualEntryScreen({ navigation }: Props) {
 
         <Field label="Date *" error={errors.date}>
           <TextInput
+            testID="date-input"
             style={[styles.input, errors.date ? styles.inputError : null]}
             value={form.date}
             onChangeText={(v) => setField('date', v)}
@@ -177,6 +181,7 @@ export default function ManualEntryScreen({ navigation }: Props) {
 
         <Field label="Notes">
           <TextInput
+            testID="notes-input"
             style={[styles.input, styles.multiline]}
             value={form.notes}
             onChangeText={(v) => setField('notes', v)}
@@ -193,6 +198,7 @@ export default function ManualEntryScreen({ navigation }: Props) {
         ) : null}
 
         <TouchableOpacity
+          testID="save-button"
           style={[styles.button, submitting && styles.buttonDisabled]}
           onPress={handleSubmit}
           disabled={submitting}

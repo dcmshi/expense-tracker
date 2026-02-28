@@ -29,8 +29,8 @@ export interface UpdateExpenseInput {
 function serializeExpense(expense: Awaited<ReturnType<typeof prisma.expense.findUniqueOrThrow>>) {
   return {
     ...expense,
-    amount:     expense.amount?.toString()                          ?? null,
-    confidence: expense.confidence?.toString()                      ?? null,
+    amount:     expense.amount     != null ? Number(expense.amount).toFixed(2)     : null,
+    confidence: expense.confidence != null ? Number(expense.confidence).toFixed(3) : null,
     date:       expense.date?.toISOString().split('T')[0]           ?? null,
     created_at: expense.created_at.toISOString(),
     updated_at: expense.updated_at.toISOString(),

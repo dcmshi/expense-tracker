@@ -307,12 +307,21 @@ Phase 3
 
 ### Test Infrastructure — Complete
 
-**Backend** (`backend/`)
-- `jest.config.js`: preset ts-jest, `moduleNameMapper` redirects `lib/db` → Prisma mock, `lib/s3` → S3 stub, `uuid` → CJS stub (uuid v13 ships ESM-only)
+**Backend unit** (`backend/`)
+- `jest.config.js`: preset ts-jest, `moduleNameMapper` redirects `lib/db` → Prisma mock, `lib/s3` → S3 stub, `uuid` → CJS stub (uuid v13 ships ESM-only); `testPathIgnorePatterns` excludes `e2e/`
 - `src/__mocks__/db.ts`: all Prisma methods as `jest.fn()`; `$transaction` calls its callback with the mock client
 - `src/__mocks__/s3.ts`: exports stub bucket name + TTL constant
 - `src/__mocks__/uuid.js`: CJS shim returning deterministic `'test-uuid-v4'`
 - 13 suites, 119 tests — workers, services, all route files
+
+**Backend e2e** (`backend/`)
+- `jest.e2e.config.js`: separate config; real Prisma client against `expense_tracker_test` PostgreSQL database; `--runInBand` to prevent cross-suite DB races
+- `src/__tests__/e2e/setup.ts`: `setupFiles` entry — sets `DATABASE_URL` to test DB before any module loads so dotenv cannot override it
+- `src/__tests__/e2e/globalSetup.js`: creates `expense_tracker_test` if absent; runs `prisma db push --accept-data-loss` to apply schema
+- `src/__mocks__/uuid.real.js`: CJS stub using `crypto.randomUUID()` — real UUIDs to avoid DB unique-constraint collisions
+- `processingWorker.ts` exports `processPendingJobs` (for e2e worker tests); `runWorker()` guarded by `require.main === module`
+- 5 suites, 39 tests — full CRUD, presigned upload + idempotency, receipt/voice ingest + idempotency, analytics summary + filtering, processing state machine + retry + verify flow
+- Requires Docker: `docker-compose up -d` before running
 
 **Mobile** (`mobile/`)
 - `jest.config.js`: preset jest-expo (jest@29), `moduleNameMapper` redirects AsyncStorage → in-memory mock, `transformIgnorePatterns` includes all Expo/RN packages
@@ -320,7 +329,8 @@ Phase 3
 
 **Running tests**
 ```bash
-cd backend && npm test
+cd backend && npm test           # unit tests (no Docker needed)
+cd backend && npm run test:e2e   # e2e tests  (requires docker-compose up -d)
 cd mobile  && npm test
 ```
 

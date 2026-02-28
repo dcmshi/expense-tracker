@@ -278,7 +278,14 @@ async function runWorker(): Promise<void> {
   await prisma.$disconnect()
 }
 
-runWorker().catch(err => {
-  console.error('[worker] Fatal error:', err)
-  process.exit(1)
-})
+// Export for e2e testing — allows tests to trigger a single poll cycle
+// without starting the infinite run loop.
+export { processPendingJobs }
+
+// Only start the poll loop when run directly (not when imported in tests).
+if (require.main === module) {
+  runWorker().catch(err => {
+    console.error('[worker] Fatal error:', err)
+    process.exit(1)
+  })
+}

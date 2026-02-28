@@ -173,18 +173,34 @@ Organized by phase and component in recommended build order.
 
 ### 17. Offline Sync
 
-- [ ] Queue failed uploads in LocalExpenseDraft when device is offline
-- [ ] Detect connectivity and trigger background sync on reconnect
-- [ ] Handle last-write-wins conflict resolution on sync
-- [ ] Show sync status indicator in UI
+- [x] Queue failed uploads in LocalExpenseDraft when device is offline
+- [x] Detect connectivity and trigger background sync on reconnect
+- [x] Handle last-write-wins conflict resolution on sync
+- [x] Show sync status indicator in UI (OfflineBanner)
 
 ### 18. Analytics Dashboard
 
-- [ ] Spending breakdown by category (chart)
-- [ ] Monthly spending totals
-- [ ] Date range filter
+- [x] Spending breakdown by category (VictoryPie donut chart)
+- [x] Monthly spending totals (VictoryBar chart)
+- [x] Date range filter (1M / 3M / 1Y / All period chips)
 
 ### 19. Notifications
 
-- [ ] Push notification when receipt processing completes (`awaiting_user`)
-- [ ] Push notification on processing failure (`failed`)
+- [x] Push notification when receipt processing completes (`awaiting_user`)
+- [x] Push notification on processing failure (`failed`)
+
+---
+
+## E2E Tests
+
+### 20. Backend E2E Test Suite
+
+- [x] Separate Jest config (`jest.e2e.config.js`) — real PostgreSQL, no DB/S3 mocks, `--runInBand`
+- [x] `globalSetup.js` — creates `expense_tracker_test` database + applies schema via `prisma db push`
+- [x] `expenses.e2e.test.ts` — full CRUD lifecycle with DB persistence assertions (14 tests)
+- [x] `uploads.e2e.test.ts` — presigned URL creation + idempotency + expired-URL refresh (5 tests)
+- [x] `ingest.e2e.test.ts` — receipt + voice ingestion, idempotency dedup verified in DB (8 tests)
+- [x] `analytics.e2e.test.ts` — summary totals, category breakdown, monthly buckets, date filtering, exclusion of in-flight expenses (6 tests)
+- [x] `worker.e2e.test.ts` — voice + receipt state machine, 3-attempt failure exhaustion, verify flow (4 tests [sic: 6 tests])
+- [x] `expenseService.ts` — serialization fixed: `amount` formatted to 2 dp, `confidence` to 3 dp via `Number().toFixed()`
+- [x] `npm run test:e2e` script added (requires `docker-compose up -d`)

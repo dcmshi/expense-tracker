@@ -4,6 +4,7 @@ module.exports = {
   testEnvironment: 'node',
   roots: ['<rootDir>/src'],
   testMatch: ['**/__tests__/**/*.test.ts'],
+  testPathIgnorePatterns: ['/node_modules/', '/__tests__/e2e/'],
   clearMocks: true,
   // Map infrastructure modules to lightweight mocks so tests never
   // attempt a real DB or S3 connection.
