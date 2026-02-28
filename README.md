@@ -364,6 +364,39 @@ Stack: **Jest 29 + jest-expo + @testing-library/react-native**
 
 ---
 
+## UI Screenshots
+
+All 7 screens rendered at iPhone 14 dimensions (390×844 pt, @2x).
+
+<table>
+  <tr>
+    <td align="center"><img src="screenshots/01-expense-list.png" width="180"/><br/><sub><b>Expense List</b></sub></td>
+    <td align="center"><img src="screenshots/02-add-hub.png" width="180"/><br/><sub><b>Add Hub</b></sub></td>
+    <td align="center"><img src="screenshots/03-manual-entry.png" width="180"/><br/><sub><b>Manual Entry</b></sub></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="screenshots/04-receipt-capture.png" width="180"/><br/><sub><b>Receipt Capture</b></sub></td>
+    <td align="center"><img src="screenshots/05-voice-capture.png" width="180"/><br/><sub><b>Voice Capture</b></sub></td>
+    <td align="center"><img src="screenshots/06-edit-verify.png" width="180"/><br/><sub><b>Edit &amp; Verify</b></sub></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="screenshots/07-analytics.png" width="180"/><br/><sub><b>Analytics</b></sub></td>
+  </tr>
+</table>
+
+### Regenerating screenshots
+
+HTML mockup sources live in `screenshots/*.html`. To re-render all PNGs:
+
+```bash
+npm install --save-dev puppeteer   # one-time, from repo root
+node scripts/generate-screenshots.js
+```
+
+Edit the corresponding `.html` file for a given screen, then re-run the script to update just that PNG.
+
+---
+
 ## Implementation Status
 
 | Phase | Status | Scope |

@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  width: 390px; height: 844px;
+  background: #F9FAFB;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+  overflow: hidden; position: relative;
+}
+.status-bar {
+  height: 50px; background: #fff;
+  display: flex; align-items: flex-end; justify-content: space-between;
+  padding: 0 24px 10px; font-size: 15px; font-weight: 600; color: #111827;
+}
+.nav-header {
+  height: 60px; background: #fff;
+  border-bottom: 1px solid #E5E7EB;
+  display: flex; align-items: center; padding: 0 20px;
+}
+.nav-title { font-size: 24px; font-weight: 700; color: #111827; }
+.content { height: 651px; padding: 24px 20px; overflow: hidden; }
+.section-label {
+  font-size: 13px; font-weight: 600; color: #6B7280;
+  text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 14px;
+}
+.action-card {
+  background: #fff; border-radius: 16px; padding: 20px;
+  margin-bottom: 12px; box-shadow: 0 1px 4px rgba(0,0,0,.08);
+  display: flex; align-items: center; gap: 16px; cursor: pointer;
+}
+.action-icon {
+  width: 52px; height: 52px; border-radius: 14px;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.action-text h3 { font-size: 17px; font-weight: 600; color: #111827; margin-bottom: 3px; }
+.action-text p  { font-size: 13px; color: #6B7280; }
+.chevron { margin-left: auto; color: #D1D5DB; }
+
+.drafts-section { margin-top: 28px; }
+.draft-card {
+  background: #fff; border-radius: 14px; padding: 14px 16px;
+  box-shadow: 0 1px 3px rgba(0,0,0,.07);
+  display: flex; align-items: center; gap: 12px;
+}
+.draft-dot {
+  width: 10px; height: 10px; border-radius: 50%; background: #F59E0B; flex-shrink: 0;
+}
+.draft-info { flex: 1; }
+.draft-title { font-size: 14px; font-weight: 600; color: #111827; margin-bottom: 2px; }
+.draft-sub   { font-size: 12px; color: #9CA3AF; }
+.draft-resume {
+  font-size: 13px; font-weight: 600; color: #4F46E5; white-space: nowrap;
+}
+
+.tab-bar {
+  position: absolute; bottom: 0; left: 0; right: 0; height: 83px;
+  background: #fff; border-top: 1px solid #E5E7EB;
+  display: flex; align-items: flex-start; justify-content: space-around;
+  padding-top: 10px;
+}
+.tab { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.tab-label { font-size: 11px; font-weight: 500; }
+.tab.active  { color: #4F46E5; }
+.tab.inactive { color: #9CA3AF; }
+.add-fab-active {
+  width: 36px; height: 36px; background: #4F46E5; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center; margin-top: -6px;
+}
+</style>
+</head>
+<body>
+
+<div class="status-bar">
+  <span>9:41</span>
+  <span style="font-size:13px">●●●● 🔋</span>
+</div>
+
+<div class="nav-header">
+  <span class="nav-title">Add Expense</span>
+</div>
+
+<div class="content">
+  <div class="section-label">Choose a method</div>
+
+  <div class="action-card">
+    <div class="action-icon" style="background:#EEF2FF">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#4F46E5" stroke-width="2">
+        <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/>
+      </svg>
+    </div>
+    <div class="action-text">
+      <h3>Manual Entry</h3>
+      <p>Type in amount, merchant & date</p>
+    </div>
+    <div class="chevron">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="9 18 15 12 9 6"/>
+      </svg>
+    </div>
+  </div>
+
+  <div class="action-card">
+    <div class="action-icon" style="background:#F0FDF4">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2">
+        <rect x="2" y="4" width="20" height="16" rx="2"/><circle cx="12" cy="12" r="4"/>
+        <line x1="18" y1="4" x2="18" y2="8"/>
+      </svg>
+    </div>
+    <div class="action-text">
+      <h3>Scan Receipt</h3>
+      <p>Photo → OCR → auto-fill</p>
+    </div>
+    <div class="chevron">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="9 18 15 12 9 6"/>
+      </svg>
+    </div>
+  </div>
+
+  <div class="action-card">
+    <div class="action-icon" style="background:#FFF7ED">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2">
+        <path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/>
+        <path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/>
+        <line x1="8" y1="23" x2="16" y2="23"/>
+      </svg>
+    </div>
+    <div class="action-text">
+      <h3>Voice Entry</h3>
+      <p>Speak your expense naturally</p>
+    </div>
+    <div class="chevron">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="9 18 15 12 9 6"/>
+      </svg>
+    </div>
+  </div>
+
+  <div class="drafts-section">
+    <div class="section-label">Pending Drafts · 1</div>
+    <div class="draft-card">
+      <div class="draft-dot"></div>
+      <div class="draft-info">
+        <div class="draft-title">Voice draft — uploading</div>
+        <div class="draft-sub">Captured Feb 28 · $24.50 · Metro</div>
+      </div>
+      <span class="draft-resume">Resume →</span>
+    </div>
+  </div>
+</div>
+
+<div class="tab-bar">
+  <div class="tab inactive">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+    </svg>
+    <span class="tab-label">Expenses</span>
+  </div>
+  <div class="tab active">
+    <div class="add-fab-active">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5">
+        <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+      </svg>
+    </div>
+    <span class="tab-label">Add</span>
+  </div>
+  <div class="tab inactive">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
+    </svg>
+    <span class="tab-label">Analytics</span>
+  </div>
+</div>
+
+</body>
+</html>

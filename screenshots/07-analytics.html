@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  width: 390px; height: 844px;
+  background: #F9FAFB;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+  overflow: hidden; position: relative;
+}
+.status-bar {
+  height: 50px; background: #fff;
+  display: flex; align-items: flex-end; justify-content: space-between;
+  padding: 0 24px 10px; font-size: 15px; font-weight: 600; color: #111827;
+}
+.nav-header {
+  height: 60px; background: #fff; border-bottom: 1px solid #E5E7EB;
+  display: flex; align-items: center; padding: 0 20px;
+}
+.nav-title { font-size: 24px; font-weight: 700; color: #111827; }
+.content { height: 651px; overflow: hidden; padding: 14px 18px; }
+
+/* Period chips */
+.period-row { display: flex; gap: 8px; margin-bottom: 16px; }
+.period-chip {
+  padding: 6px 16px; border-radius: 20px; font-size: 14px; font-weight: 600;
+  cursor: pointer; flex: 1; text-align: center;
+}
+.chip-active   { background: #4F46E5; color: #fff; }
+.chip-inactive { background: #fff; color: #6B7280; box-shadow: 0 1px 3px rgba(0,0,0,.07); }
+
+/* Total card */
+.total-card {
+  background: linear-gradient(135deg, #4F46E5 0%, #6366F1 100%);
+  border-radius: 16px; padding: 18px 20px; margin-bottom: 14px; color: #fff;
+}
+.total-label { font-size: 12px; font-weight: 600; opacity: 0.75; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+.total-amount { font-size: 36px; font-weight: 700; letter-spacing: -1px; margin-bottom: 4px; }
+.total-sub { font-size: 13px; opacity: 0.7; }
+
+/* Donut chart */
+.chart-row { display: flex; gap: 14px; align-items: center; margin-bottom: 14px; }
+.donut-wrap { position: relative; width: 130px; height: 130px; flex-shrink: 0; }
+.donut {
+  width: 130px; height: 130px; border-radius: 50%;
+  background: conic-gradient(
+    #4F46E5 0%    28%,
+    #10B981 28%   50%,
+    #F59E0B 50%   68%,
+    #EF4444 68%   85%,
+    #8B5CF6 85%  100%
+  );
+}
+.donut-hole {
+  position: absolute;
+  top: 22px; left: 22px;
+  width: 86px; height: 86px;
+  border-radius: 50%; background: #F9FAFB;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+.donut-center-val { font-size: 15px; font-weight: 700; color: #111827; }
+.donut-center-lbl { font-size: 10px; color: #9CA3AF; }
+
+/* Legend */
+.legend { flex: 1; }
+.legend-item { display: flex; align-items: center; gap: 8px; margin-bottom: 7px; }
+.legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.legend-text { font-size: 12px; color: #374151; flex: 1; }
+.legend-pct { font-size: 12px; font-weight: 600; color: #6B7280; }
+
+/* Monthly bar chart */
+.chart-card {
+  background: #fff; border-radius: 14px; padding: 14px 16px;
+  box-shadow: 0 1px 3px rgba(0,0,0,.07);
+}
+.chart-title { font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 14px; }
+.bar-chart { display: flex; align-items: flex-end; justify-content: space-around; height: 90px; gap: 6px; }
+.bar-col { display: flex; flex-direction: column; align-items: center; gap: 5px; flex: 1; }
+.bar {
+  width: 100%; border-radius: 6px 6px 0 0;
+  background: linear-gradient(180deg, #818CF8 0%, #4F46E5 100%);
+}
+.bar.current { background: linear-gradient(180deg, #6366F1 0%, #4338CA 100%); }
+.bar-label { font-size: 10px; color: #9CA3AF; font-weight: 500; }
+.bar-amount { font-size: 10px; color: #6B7280; font-weight: 600; }
+
+/* Tab bar */
+.tab-bar {
+  position: absolute; bottom: 0; left: 0; right: 0; height: 83px;
+  background: #fff; border-top: 1px solid #E5E7EB;
+  display: flex; align-items: flex-start; justify-content: space-around; padding-top: 10px;
+}
+.tab { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.tab-label { font-size: 11px; font-weight: 500; }
+.tab.active  { color: #4F46E5; }
+.tab.inactive { color: #9CA3AF; }
+.add-fab {
+  width: 36px; height: 36px; background: #E5E7EB; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center; margin-top: -6px;
+}
+</style>
+</head>
+<body>
+
+<div class="status-bar">
+  <span>9:41</span>
+  <span style="font-size:13px">●●●● 🔋</span>
+</div>
+
+<div class="nav-header">
+  <span class="nav-title">Analytics</span>
+</div>
+
+<div class="content">
+
+  <div class="period-row">
+    <div class="period-chip chip-active">1M</div>
+    <div class="period-chip chip-inactive">3M</div>
+    <div class="period-chip chip-inactive">1Y</div>
+    <div class="period-chip chip-inactive">All</div>
+  </div>
+
+  <div class="total-card">
+    <div class="total-label">Total Spent · Feb 2026</div>
+    <div class="total-amount">$2,847.50</div>
+    <div class="total-sub">↑ 12% vs. last month</div>
+  </div>
+
+  <div class="chart-row">
+    <div class="donut-wrap">
+      <div class="donut"></div>
+      <div class="donut-hole">
+        <div class="donut-center-val">5 cats</div>
+        <div class="donut-center-lbl">breakdown</div>
+      </div>
+    </div>
+    <div class="legend">
+      <div class="legend-item">
+        <div class="legend-dot" style="background:#4F46E5"></div>
+        <span class="legend-text">Food & Drink</span>
+        <span class="legend-pct">28%</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background:#10B981"></div>
+        <span class="legend-text">Groceries</span>
+        <span class="legend-pct">22%</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background:#F59E0B"></div>
+        <span class="legend-text">Transport</span>
+        <span class="legend-pct">18%</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background:#EF4444"></div>
+        <span class="legend-text">Shopping</span>
+        <span class="legend-pct">17%</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background:#8B5CF6"></div>
+        <span class="legend-text">Entertainment</span>
+        <span class="legend-pct">15%</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="chart-card">
+    <div class="chart-title">Monthly Trend</div>
+    <div class="bar-chart">
+      <div class="bar-col">
+        <div class="bar-amount">$1.8k</div>
+        <div class="bar" style="height:54px"></div>
+        <div class="bar-label">Sep</div>
+      </div>
+      <div class="bar-col">
+        <div class="bar-amount">$2.1k</div>
+        <div class="bar" style="height:63px"></div>
+        <div class="bar-label">Oct</div>
+      </div>
+      <div class="bar-col">
+        <div class="bar-amount">$2.4k</div>
+        <div class="bar" style="height:72px"></div>
+        <div class="bar-label">Nov</div>
+      </div>
+      <div class="bar-col">
+        <div class="bar-amount">$3.1k</div>
+        <div class="bar" style="height:90px"></div>
+        <div class="bar-label">Dec</div>
+      </div>
+      <div class="bar-col">
+        <div class="bar-amount">$2.5k</div>
+        <div class="bar" style="height:75px"></div>
+        <div class="bar-label">Jan</div>
+      </div>
+      <div class="bar-col">
+        <div class="bar-amount">$2.8k</div>
+        <div class="bar current" style="height:84px"></div>
+        <div class="bar-label" style="color:#4F46E5;font-weight:700">Feb</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="tab-bar">
+  <div class="tab inactive">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+    </svg>
+    <span class="tab-label">Expenses</span>
+  </div>
+  <div class="tab inactive">
+    <div class="add-fab">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6B7280" stroke-width="2.5">
+        <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+      </svg>
+    </div>
+    <span class="tab-label">Add</span>
+  </div>
+  <div class="tab active">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
+    </svg>
+    <span class="tab-label">Analytics</span>
+  </div>
+</div>
+
+</body>
+</html>

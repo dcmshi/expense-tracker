@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  width: 390px; height: 844px;
+  background: #F9FAFB;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+  overflow: hidden; position: relative;
+}
+.status-bar {
+  height: 50px; background: #fff;
+  display: flex; align-items: flex-end; justify-content: space-between;
+  padding: 0 24px 10px; font-size: 15px; font-weight: 600; color: #111827;
+}
+.nav-header {
+  height: 56px; background: #fff; border-bottom: 1px solid #E5E7EB;
+  display: flex; align-items: center; padding: 0 16px; gap: 12px;
+}
+.nav-back { color: #4F46E5; display: flex; align-items: center; }
+.nav-title { font-size: 17px; font-weight: 600; color: #111827; }
+
+.content { height: 738px; display: flex; flex-direction: column; padding: 28px 20px; }
+
+/* State label */
+.state-pill {
+  background: #D1FAE5; color: #065F46;
+  font-size: 12px; font-weight: 600; padding: 4px 14px; border-radius: 20px;
+  display: inline-block; align-self: center; margin-bottom: 28px;
+}
+
+/* Transcript card */
+.transcript-card {
+  background: #fff; border-radius: 16px; padding: 18px 20px;
+  box-shadow: 0 1px 4px rgba(0,0,0,.08); margin-bottom: 20px; position: relative;
+}
+.transcript-label { font-size: 11px; font-weight: 600; color: #9CA3AF; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
+.transcript-text { font-size: 16px; color: #374151; line-height: 1.6; font-style: italic; }
+.mic-icon-small {
+  position: absolute; top: 14px; right: 16px;
+  color: #D1FAE5; background: #065F46; border-radius: 50%; padding: 4px;
+}
+
+/* Parsed result */
+.parsed-card {
+  background: #fff; border-radius: 16px; padding: 18px 20px;
+  box-shadow: 0 1px 4px rgba(0,0,0,.08); margin-bottom: 24px;
+}
+.parsed-label { font-size: 11px; font-weight: 600; color: #9CA3AF; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 14px; }
+.parsed-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 10px 0; border-bottom: 1px solid #F3F4F6;
+}
+.parsed-row:last-child { border-bottom: none; padding-bottom: 0; }
+.pr-key   { font-size: 14px; color: #6B7280; }
+.pr-value { font-size: 15px; font-weight: 600; color: #111827; }
+.amount-big { font-size: 28px; font-weight: 700; color: #111827; }
+
+/* Confidence */
+.confidence-bar-wrap { margin-top: 14px; }
+.confidence-label { font-size: 12px; color: #9CA3AF; margin-bottom: 6px; display: flex; justify-content: space-between; }
+.confidence-bar { height: 6px; background: #E5E7EB; border-radius: 3px; overflow: hidden; }
+.confidence-fill { height: 100%; background: linear-gradient(90deg, #10B981, #34D399); border-radius: 3px; width: 87%; }
+
+/* Actions */
+.actions { display: flex; flex-direction: column; gap: 10px; margin-top: auto; }
+.btn-primary {
+  background: #4F46E5; color: #fff; border: none; border-radius: 14px;
+  padding: 16px; font-size: 17px; font-weight: 600; cursor: pointer;
+  box-shadow: 0 4px 12px rgba(79,70,229,.35);
+}
+.btn-secondary {
+  background: #F3F4F6; color: #374151; border: none; border-radius: 14px;
+  padding: 16px; font-size: 17px; font-weight: 600; cursor: pointer;
+}
+</style>
+</head>
+<body>
+
+<div class="status-bar">
+  <span>9:41</span>
+  <span style="font-size:13px">●●●● 🔋</span>
+</div>
+
+<div class="nav-header">
+  <div class="nav-back">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+      <polyline points="15 18 9 12 15 6"/>
+    </svg>
+  </div>
+  <span class="nav-title">Voice Entry</span>
+</div>
+
+<div class="content">
+
+  <div class="state-pill">✓ Parsed — review below</div>
+
+  <div class="transcript-card">
+    <div class="transcript-label">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline;margin-right:4px">
+        <path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/>
+      </svg>
+      What you said
+    </div>
+    <div class="transcript-text">
+      "Spent twenty four fifty at Metro for groceries yesterday"
+    </div>
+  </div>
+
+  <div class="parsed-card">
+    <div class="parsed-label">Parsed Expense</div>
+    <div class="parsed-row">
+      <span class="pr-key">Amount</span>
+      <span class="amount-big">$24.50</span>
+    </div>
+    <div class="parsed-row">
+      <span class="pr-key">Merchant</span>
+      <span class="pr-value">Metro</span>
+    </div>
+    <div class="parsed-row">
+      <span class="pr-key">Category</span>
+      <span class="pr-value" style="display:flex;align-items:center;gap:6px">
+        <span style="background:#EEF2FF;color:#4338CA;padding:2px 8px;border-radius:10px;font-size:12px">Groceries</span>
+      </span>
+    </div>
+    <div class="parsed-row">
+      <span class="pr-key">Date</span>
+      <span class="pr-value">Feb 27, 2026</span>
+    </div>
+    <div class="confidence-bar-wrap">
+      <div class="confidence-label">
+        <span>Confidence</span>
+        <span style="font-weight:600;color:#10B981">87%</span>
+      </div>
+      <div class="confidence-bar"><div class="confidence-fill"></div></div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="btn-primary">Use This →</button>
+    <button class="btn-secondary">Try Again</button>
+  </div>
+
+</div>
+
+</body>
+</html>

@@ -345,6 +345,38 @@ inputs
 
 ------------------------------------------------------------------------
 
+## UI Screenshots
+
+Static HTML mockups for all 7 screens are in `screenshots/`. They render at
+iPhone 14 dimensions (390×844 pt) and are used as portfolio visuals in the
+README.
+
+### Files
+
+| HTML source | PNG output | Screen |
+|---|---|---|
+| `screenshots/01-expense-list.html`    | `screenshots/01-expense-list.png`    | Expense List |
+| `screenshots/02-add-hub.html`         | `screenshots/02-add-hub.png`         | Add Hub |
+| `screenshots/03-manual-entry.html`    | `screenshots/03-manual-entry.png`    | Manual Entry |
+| `screenshots/04-receipt-capture.html` | `screenshots/04-receipt-capture.png` | Receipt Capture |
+| `screenshots/05-voice-capture.html`   | `screenshots/05-voice-capture.png`   | Voice Capture |
+| `screenshots/06-edit-verify.html`     | `screenshots/06-edit-verify.png`     | Edit & Verify |
+| `screenshots/07-analytics.html`       | `screenshots/07-analytics.png`       | Analytics |
+
+### Regenerating
+
+```bash
+npm install --save-dev puppeteer   # one-time install from repo root
+node scripts/generate-screenshots.js
+```
+
+The script (`scripts/generate-screenshots.js`) launches a headless Chromium
+browser, navigates to each HTML file, and saves a @2x PNG (780×1688px).
+Edit the `.html` source for a screen, then re-run the script to refresh its
+PNG.
+
+------------------------------------------------------------------------
+
 ## Future Enhancements
 
 -   Auto-categorization model

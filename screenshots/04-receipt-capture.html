@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  width: 390px; height: 844px;
+  background: #000;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+  overflow: hidden; position: relative;
+  color: #fff;
+}
+.status-bar {
+  height: 50px; position: absolute; top: 0; left: 0; right: 0; z-index: 10;
+  display: flex; align-items: flex-end; justify-content: space-between;
+  padding: 0 24px 10px; font-size: 15px; font-weight: 600;
+}
+.top-bar {
+  position: absolute; top: 50px; left: 0; right: 0; height: 56px; z-index: 10;
+  display: flex; align-items: center; justify-content: space-between; padding: 0 20px;
+}
+.top-btn {
+  width: 38px; height: 38px; border-radius: 50%; background: rgba(0,0,0,.45);
+  display: flex; align-items: center; justify-content: center; cursor: pointer;
+}
+.screen-title { font-size: 17px; font-weight: 600; color: #fff; }
+
+/* Camera viewfinder */
+.viewfinder {
+  position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(160deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+}
+/* Subtle noise texture */
+.viewfinder::before {
+  content: ''; position: absolute; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4'%3E%3Ccircle cx='1' cy='1' r='0.5' fill='rgba(255,255,255,0.03)'/%3E%3C/svg%3E");
+}
+
+/* Receipt guide */
+.receipt-guide {
+  position: absolute;
+  top: 140px; left: 40px; right: 40px; height: 480px;
+  border: 2px solid rgba(255,255,255,.55);
+  border-radius: 12px;
+}
+.receipt-guide::before,
+.receipt-guide::after {
+  content: ''; position: absolute; width: 28px; height: 28px;
+  border-color: #fff; border-style: solid;
+}
+.corner-tl { top: -2px; left: -2px; border-width: 3px 0 0 3px; border-radius: 10px 0 0 0; }
+.corner-tr { top: -2px; right: -2px; border-width: 3px 3px 0 0; border-radius: 0 10px 0 0; }
+.corner-bl { bottom: -2px; left: -2px; border-width: 0 0 3px 3px; border-radius: 0 0 0 10px; }
+.corner-br { bottom: -2px; right: -2px; border-width: 0 3px 3px 0; border-radius: 0 0 10px 0; }
+
+.guide-corners {
+  position: absolute; inset: -2px;
+}
+.gc {
+  position: absolute; width: 28px; height: 28px;
+  border-style: solid; border-color: #fff;
+}
+.gc-tl { top: -1px; left: -1px; border-width: 3px 0 0 3px; border-radius: 9px 0 0 0; }
+.gc-tr { top: -1px; right: -1px; border-width: 3px 3px 0 0; border-radius: 0 9px 0 0; }
+.gc-bl { bottom: -1px; left: -1px; border-width: 0 0 3px 3px; border-radius: 0 0 0 9px; }
+.gc-br { bottom: -1px; right: -1px; border-width: 0 3px 3px 0; border-radius: 0 0 9px 0; }
+
+/* Receipt icon in guide */
+.receipt-icon {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  text-align: center;
+}
+.receipt-icon svg { opacity: 0.2; }
+.guide-hint {
+  position: absolute; bottom: -36px; left: 0; right: 0; text-align: center;
+  font-size: 13px; color: rgba(255,255,255,.6);
+}
+
+/* Bottom controls */
+.bottom-controls {
+  position: absolute; bottom: 40px; left: 0; right: 0;
+  display: flex; align-items: center; justify-content: space-around; padding: 0 32px;
+}
+.library-btn {
+  width: 52px; height: 52px; border-radius: 10px;
+  background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.25);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; color: rgba(255,255,255,.7); flex-direction: column; gap: 3px;
+}
+.capture-btn {
+  width: 76px; height: 76px; border-radius: 50%;
+  background: #fff;
+  border: 5px solid rgba(255,255,255,.35);
+  box-shadow: 0 0 0 3px rgba(255,255,255,.6);
+  cursor: pointer;
+}
+.flash-slot { width: 52px; height: 52px; display: flex; align-items: center; justify-content: center; }
+
+/* Scan line animation */
+@keyframes scan {
+  0%   { top: 20px; opacity: 1; }
+  90%  { top: 440px; opacity: 1; }
+  100% { top: 440px; opacity: 0; }
+}
+.scan-line {
+  position: absolute; left: 6px; right: 6px; height: 2px;
+  background: linear-gradient(90deg, transparent, #4F46E5, #818CF8, #4F46E5, transparent);
+  border-radius: 2px;
+  animation: scan 2.5s ease-in-out infinite;
+}
+</style>
+</head>
+<body>
+
+<div class="viewfinder"></div>
+
+<div class="status-bar">
+  <span>9:41</span>
+  <span style="font-size:13px">●●●● 🔋</span>
+</div>
+
+<div class="top-bar">
+  <div class="top-btn">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5">
+      <polyline points="15 18 9 12 15 6"/>
+    </svg>
+  </div>
+  <span class="screen-title">Scan Receipt</span>
+  <div class="top-btn">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2">
+      <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+    </svg>
+  </div>
+</div>
+
+<div class="receipt-guide">
+  <div class="guide-corners">
+    <div class="gc gc-tl"></div>
+    <div class="gc gc-tr"></div>
+    <div class="gc gc-bl"></div>
+    <div class="gc gc-br"></div>
+  </div>
+  <div class="scan-line"></div>
+  <div class="receipt-icon">
+    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5">
+      <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+      <polyline points="14 2 14 8 20 8"/>
+      <line x1="8" y1="13" x2="16" y2="13"/>
+      <line x1="8" y1="17" x2="12" y2="17"/>
+    </svg>
+    <div style="margin-top:8px;font-size:13px;color:rgba(255,255,255,.4)">Position receipt</div>
+    <div style="font-size:11px;color:rgba(255,255,255,.25);margin-top:4px">within the frame</div>
+  </div>
+  <div class="guide-hint">Auto-captures when aligned</div>
+</div>
+
+<div class="bottom-controls">
+  <div class="library-btn">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2">
+      <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
+      <polyline points="21 15 16 10 5 21"/>
+    </svg>
+    <span>Library</span>
+  </div>
+  <div class="capture-btn"></div>
+  <div class="flash-slot">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.55)" stroke-width="2">
+      <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+    </svg>
+  </div>
+</div>
+
+</body>
+</html>

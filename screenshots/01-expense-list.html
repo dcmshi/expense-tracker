@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  width: 390px; height: 844px;
+  background: #F9FAFB;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+  overflow: hidden; position: relative;
+}
+.status-bar {
+  height: 50px; background: #fff;
+  display: flex; align-items: flex-end; justify-content: space-between;
+  padding: 0 24px 10px; font-size: 15px; font-weight: 600; color: #111827;
+}
+.nav-header {
+  height: 60px; background: #fff;
+  border-bottom: 1px solid #E5E7EB;
+  display: flex; align-items: center; padding: 0 20px;
+}
+.nav-title { font-size: 24px; font-weight: 700; color: #111827; }
+.content { height: 651px; overflow: hidden; padding: 12px 16px; }
+.card {
+  background: #fff; border-radius: 14px; padding: 14px 16px;
+  margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,.07);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.card-left { flex: 1; }
+.merchant { font-size: 16px; font-weight: 600; color: #111827; margin-bottom: 5px; }
+.card-meta { display: flex; gap: 8px; align-items: center; }
+.cat-chip {
+  background: #EEF2FF; color: #4338CA;
+  font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: 10px;
+}
+.date { font-size: 12px; color: #9CA3AF; }
+.card-right { text-align: right; }
+.amount { font-size: 18px; font-weight: 700; color: #111827; margin-bottom: 5px; }
+.badge {
+  display: inline-block; padding: 2px 8px; border-radius: 20px;
+  font-size: 10px; font-weight: 600; white-space: nowrap;
+}
+.b-verified   { background: #D1FAE5; color: #065F46; }
+.b-awaiting   { background: #FEF3C7; color: #92400E; }
+.b-processing { background: #DBEAFE; color: #1E40AF; }
+.b-failed     { background: #FEE2E2; color: #991B1B; }
+.tab-bar {
+  position: absolute; bottom: 0; left: 0; right: 0; height: 83px;
+  background: #fff; border-top: 1px solid #E5E7EB;
+  display: flex; align-items: flex-start; justify-content: space-around;
+  padding-top: 10px;
+}
+.tab { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.tab-label { font-size: 11px; font-weight: 500; }
+.tab.active { color: #4F46E5; }
+.tab.inactive { color: #9CA3AF; }
+.add-fab {
+  width: 36px; height: 36px; background: #E5E7EB; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center; margin-top: -6px;
+}
+</style>
+</head>
+<body>
+
+<div class="status-bar">
+  <span>9:41</span>
+  <span style="font-size:13px; letter-spacing:1px">●●●● 🔋</span>
+</div>
+
+<div class="nav-header">
+  <span class="nav-title">Expenses</span>
+</div>
+
+<div class="content">
+  <div class="card">
+    <div class="card-left">
+      <div class="merchant">Starbucks</div>
+      <div class="card-meta">
+        <span class="cat-chip">Food & Drink</span>
+        <span class="date">Feb 28</span>
+      </div>
+    </div>
+    <div class="card-right">
+      <div class="amount">$8.75</div>
+      <span class="badge b-verified">verified</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-left">
+      <div class="merchant">Uber</div>
+      <div class="card-meta">
+        <span class="cat-chip">Transport</span>
+        <span class="date">Feb 27</span>
+      </div>
+    </div>
+    <div class="card-right">
+      <div class="amount">$24.50</div>
+      <span class="badge b-awaiting">awaiting review</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-left">
+      <div class="merchant">Whole Foods Market</div>
+      <div class="card-meta">
+        <span class="cat-chip">Groceries</span>
+        <span class="date">Feb 26</span>
+      </div>
+    </div>
+    <div class="card-right">
+      <div class="amount">$127.43</div>
+      <span class="badge b-verified">verified</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-left">
+      <div class="merchant">Netflix</div>
+      <div class="card-meta">
+        <span class="cat-chip">Entertainment</span>
+        <span class="date">Feb 25</span>
+      </div>
+    </div>
+    <div class="card-right">
+      <div class="amount">$16.99</div>
+      <span class="badge b-verified">verified</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-left">
+      <div class="merchant">Shell Gas Station</div>
+      <div class="card-meta">
+        <span class="cat-chip">Transport</span>
+        <span class="date">Feb 24</span>
+      </div>
+    </div>
+    <div class="card-right">
+      <div class="amount">$85.00</div>
+      <span class="badge b-processing">processing</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-left">
+      <div class="merchant">Amazon</div>
+      <div class="card-meta">
+        <span class="cat-chip">Shopping</span>
+        <span class="date">Feb 23</span>
+      </div>
+    </div>
+    <div class="card-right">
+      <div class="amount">$43.20</div>
+      <span class="badge b-failed">failed</span>
+    </div>
+  </div>
+
+  <div class="card" style="opacity:0.6">
+    <div class="card-left">
+      <div class="merchant">Tim Hortons</div>
+      <div class="card-meta">
+        <span class="cat-chip">Food & Drink</span>
+        <span class="date">Feb 22</span>
+      </div>
+    </div>
+    <div class="card-right">
+      <div class="amount">$4.25</div>
+      <span class="badge b-verified">verified</span>
+    </div>
+  </div>
+</div>
+
+<div class="tab-bar">
+  <div class="tab active">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+    </svg>
+    <span class="tab-label">Expenses</span>
+  </div>
+  <div class="tab inactive">
+    <div class="add-fab">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6B7280" stroke-width="2.5">
+        <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+      </svg>
+    </div>
+    <span class="tab-label">Add</span>
+  </div>
+  <div class="tab inactive">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
+    </svg>
+    <span class="tab-label">Analytics</span>
+  </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  width: 390px; height: 844px;
+  background: #F9FAFB;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+  overflow: hidden; position: relative;
+}
+.status-bar {
+  height: 50px; background: #fff;
+  display: flex; align-items: flex-end; justify-content: space-between;
+  padding: 0 24px 10px; font-size: 15px; font-weight: 600; color: #111827;
+}
+.nav-header {
+  height: 56px; background: #fff; border-bottom: 1px solid #E5E7EB;
+  display: flex; align-items: center; padding: 0 16px; gap: 12px;
+}
+.nav-back { color: #4F46E5; display: flex; align-items: center; }
+.nav-title { font-size: 17px; font-weight: 600; color: #111827; flex: 1; }
+
+.content { height: 738px; overflow: hidden; padding: 16px 20px; }
+
+/* Status row */
+.status-row {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 14px;
+}
+.badge-awaiting {
+  background: #FEF3C7; color: #92400E;
+  font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 20px;
+}
+.source-pill {
+  background: #F3F4F6; color: #6B7280;
+  font-size: 12px; font-weight: 500; padding: 4px 10px; border-radius: 20px;
+  display: flex; align-items: center; gap: 4px;
+}
+.confidence-badge {
+  margin-left: auto;
+  background: #D1FAE5; color: #065F46;
+  font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 20px;
+}
+
+/* Receipt preview */
+.receipt-preview {
+  background: #fff; border-radius: 14px; overflow: hidden;
+  margin-bottom: 14px; box-shadow: 0 1px 4px rgba(0,0,0,.08);
+  height: 140px; display: flex; align-items: center; justify-content: center;
+  position: relative;
+}
+.receipt-bg {
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, #F8FAFC 0%, #EFF6FF 100%);
+}
+.receipt-inner {
+  position: relative; z-index: 1; text-align: center;
+}
+.receipt-thumb {
+  width: 64px; height: 80px; border-radius: 6px; background: #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,.12);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  margin: 0 auto 8px;
+}
+.receipt-lines { width: 36px; }
+.r-line { height: 3px; background: #E5E7EB; border-radius: 2px; margin-bottom: 4px; }
+.r-line.short { width: 60%; }
+.r-line.long  { width: 100%; }
+.preview-label { font-size: 12px; color: #9CA3AF; }
+
+/* Form */
+.form-card {
+  background: #fff; border-radius: 16px; overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0,0,0,.07); margin-bottom: 14px;
+}
+.field {
+  padding: 13px 16px; border-bottom: 1px solid #F3F4F6;
+  display: flex; align-items: center; gap: 12px;
+}
+.field:last-child { border-bottom: none; }
+.field-label { font-size: 13px; color: #9CA3AF; font-weight: 500; width: 78px; flex-shrink: 0; }
+.field-value { font-size: 15px; color: #111827; font-weight: 500; flex: 1; }
+.field-value.big { font-size: 20px; font-weight: 700; color: #4F46E5; }
+.field-edit {
+  color: #D1D5DB;
+  svg { display: block; }
+}
+
+/* Actions */
+.verify-btn {
+  width: 100%; padding: 16px; background: #10B981; color: #fff;
+  border: none; border-radius: 14px; font-size: 17px; font-weight: 600;
+  cursor: pointer; box-shadow: 0 4px 12px rgba(16,185,129,.3);
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  margin-bottom: 12px;
+}
+.delete-btn {
+  width: 100%; padding: 14px; background: transparent; color: #EF4444;
+  border: none; font-size: 15px; font-weight: 600; cursor: pointer;
+}
+</style>
+</head>
+<body>
+
+<div class="status-bar">
+  <span>9:41</span>
+  <span style="font-size:13px">●●●● 🔋</span>
+</div>
+
+<div class="nav-header">
+  <div class="nav-back">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+      <polyline points="15 18 9 12 15 6"/>
+    </svg>
+  </div>
+  <span class="nav-title">Edit & Verify</span>
+</div>
+
+<div class="content">
+
+  <div class="status-row">
+    <span class="badge-awaiting">⏳ Awaiting Review</span>
+    <span class="source-pill">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="2" y="4" width="20" height="16" rx="2"/><circle cx="12" cy="12" r="4"/>
+      </svg>
+      receipt
+    </span>
+    <span class="confidence-badge">87% conf.</span>
+  </div>
+
+  <div class="receipt-preview">
+    <div class="receipt-bg"></div>
+    <div class="receipt-inner">
+      <div class="receipt-thumb">
+        <div class="receipt-lines">
+          <div class="r-line long"></div>
+          <div class="r-line short"></div>
+          <div class="r-line long"></div>
+          <div class="r-line long"></div>
+          <div class="r-line short"></div>
+          <div class="r-line long"></div>
+          <div class="r-line long"></div>
+        </div>
+      </div>
+      <div class="preview-label">Metro Grocery — Feb 27</div>
+    </div>
+  </div>
+
+  <div class="form-card">
+    <div class="field">
+      <span class="field-label">Amount</span>
+      <span class="field-value big">$24.50 CAD</span>
+      <div class="field-edit">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+          <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+        </svg>
+      </div>
+    </div>
+    <div class="field">
+      <span class="field-label">Merchant</span>
+      <span class="field-value">Metro Grocery</span>
+      <div class="field-edit">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+          <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+        </svg>
+      </div>
+    </div>
+    <div class="field">
+      <span class="field-label">Category</span>
+      <span class="field-value">
+        <span style="background:#EEF2FF;color:#4338CA;padding:2px 8px;border-radius:10px;font-size:13px">Groceries</span>
+      </span>
+      <div class="field-edit">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+          <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+        </svg>
+      </div>
+    </div>
+    <div class="field">
+      <span class="field-label">Date</span>
+      <span class="field-value">Feb 27, 2026</span>
+      <div class="field-edit">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+          <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+        </svg>
+      </div>
+    </div>
+    <div class="field">
+      <span class="field-label">Notes</span>
+      <span class="field-value" style="color:#D1D5DB">Add a note…</span>
+    </div>
+  </div>
+
+  <button class="verify-btn">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+      <polyline points="20 6 9 17 4 12"/>
+    </svg>
+    Verify & Save
+  </button>
+  <button class="delete-btn">Delete Expense</button>
+
+</div>
+
+</body>
+</html>
